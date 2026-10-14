@@ -7,4 +7,5 @@
 .env
 .env.*
 **/appsettings.Development.json
-**/secrets.json
+**/secrets.jsonGenericComputationPlatform/DockingApiService/Workspace/
+GenericComputationPlatform/DockingApiService/Workspace.zip

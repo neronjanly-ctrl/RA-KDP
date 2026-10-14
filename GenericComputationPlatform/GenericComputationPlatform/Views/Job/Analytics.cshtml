@@ -1,0 +1,390 @@
+@using System.Globalization
+@using System.Collections.Generic
+@using System.Text.Json
+@using Microsoft.AspNetCore.Routing
+@model GenericComputationPlatform.ViewModels.Analytics.JobAnalyticsPageModel
+
+@{
+    ViewData["Title"] = $"{Model.Summary.Job.Name} #{Model.Summary.Job.Id} Analytics";
+    var cfg = Model.Summary.AppliedConfig;
+    var routeConfig = new Dictionary<string, string>
+            {
+                ["platformDefaults.dockingThreshold"] = cfg.PlatformDefaults.DockingThreshold.ToString(CultureInfo.InvariantCulture),
+                ["platformDefaults.similarityThresholdInteraction"] = cfg.PlatformDefaults.SimilarityThresholdInteraction.ToString(CultureInfo.InvariantCulture),
+                ["platformDefaults.similarityThresholdKnown"] = cfg.PlatformDefaults.SimilarityThresholdKnown.ToString(CultureInfo.InvariantCulture),
+                ["analysisParams.topN"] = cfg.AnalysisParams.TopN.ToString(CultureInfo.InvariantCulture),
+                ["analysisParams.aggregateMethod"] = cfg.AnalysisParams.AggregateMethod,
+                ["analysisParams.highPriorityStdThreshold"] = cfg.AnalysisParams.HighPriorityStdThreshold.ToString(CultureInfo.InvariantCulture),
+                ["analysisParams.moderateDockingThreshold"] = cfg.AnalysisParams.ModerateDockingThreshold.ToString(CultureInfo.InvariantCulture),
+                ["analysisParams.moderateSimilarityThreshold"] = cfg.AnalysisParams.ModerateSimilarityThreshold.ToString(CultureInfo.InvariantCulture),
+                ["ruleBonus.allModelsPassBonus"] = cfg.RuleBonus.AllModelsPassBonus.ToString(CultureInfo.InvariantCulture),
+                ["ruleBonus.interactionBonus"] = cfg.RuleBonus.InteractionBonus.ToString(CultureInfo.InvariantCulture),
+                ["ruleBonus.knownCompoundBonus"] = cfg.RuleBonus.KnownCompoundBonus.ToString(CultureInfo.InvariantCulture),
+                ["priorityWeights.dockingWeight"] = cfg.PriorityWeights.DockingWeight.ToString(CultureInfo.InvariantCulture),
+                ["priorityWeights.similarityWeight"] = cfg.PriorityWeights.SimilarityWeight.ToString(CultureInfo.InvariantCulture),
+                ["priorityWeights.consistencyWeight"] = cfg.PriorityWeights.ConsistencyWeight.ToString(CultureInfo.InvariantCulture),
+                ["priorityWeights.ruleBonusWeight"] = cfg.PriorityWeights.RuleBonusWeight.ToString(CultureInfo.InvariantCulture),
+                ["plotParams.scatterSizeBase"] = cfg.PlotParams.ScatterSizeBase.ToString(CultureInfo.InvariantCulture),
+                ["plotParams.scatterSizeScale"] = cfg.PlotParams.ScatterSizeScale.ToString(CultureInfo.InvariantCulture),
+            };
+    var exportRouteConfig = new RouteValueDictionary(routeConfig)
+            {
+                ["domainId"] = Model.DomainId,
+                ["jobId"] = Model.Summary.Job.Id
+            };
+    var summaryReportUrl = Url.Action("AnalyticsReport", "Job", exportRouteConfig) ?? "#";
+    var fullReportUrl = Url.Action("AnalyticsReportFull", "Job", exportRouteConfig) ?? "#";
+}
+
+@section Menu {
+    @{
+        ViewData["ActiveMenu"] = "docking";
+        ViewData["JobNavDomainId"] = Model.DomainId;
+        ViewData["JobNavJobId"] = Model.Summary.Job.Id;
+        ViewData["JobNavActive"] = "analytics";
+    }
+    <partial name="_RaWorkspaceMenu" />
+    <partial name="_RaJobContextMenu" />
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/pageFeatures.css" asp-append-version="true" />
+}
+
+<div class="jumbotron py-4">
+    <h1 class="display-5">@ViewData["Title"]</h1>
+    <p class="mb-1">   
+        <strong>Default analytics flow on this page does not affect Spider Plot thresholds or formal report logic.</strong>
+    </p>
+    <div class="small text-muted">
+        Applied aggregate method: @Model.Summary.AppliedConfig.AnalysisParams.AggregateMethod,
+        Top N: @Model.Summary.AppliedConfig.AnalysisParams.TopN
+    </div>
+
+    @if (Model.Summary.Validation.Errors.Count > 0)
+    {
+        <div class="alert alert-danger mt-3 mb-0">
+            <strong>Errors:</strong>
+            <ul class="mb-0">
+                @foreach (var err in Model.Summary.Validation.Errors)
+                {
+                    <li>@err</li>
+                }
+            </ul>
+        </div>
+    }
+
+    @if (Model.Summary.Validation.Warnings.Count > 0)
+    {
+        <div class="alert alert-warning mt-3 mb-0">
+            <strong>Warnings:</strong>
+            <ul class="mb-0">
+                @foreach (var warning in Model.Summary.Validation.Warnings)
+                {
+                    <li>@warning</li>
+                }
+            </ul>
+        </div>
+    }
+</div>
+
+<h3>Total Statics</h3>
+<div class="row mb-4">
+    <div class="col-md-4 mb-2"><div class="card"><div class="card-body"><div class="text-muted small">Mean docking</div><div class="h4 mb-0">@(Model.Summary.MeanDocking?.ToString("F3", CultureInfo.InvariantCulture) ?? "N/A")</div></div></div></div>
+    <div class="col-md-4 mb-2"><div class="card"><div class="card-body"><div class="text-muted small">Median docking</div><div class="h4 mb-0">@(Model.Summary.MedianDocking?.ToString("F3", CultureInfo.InvariantCulture) ?? "N/A")</div></div></div></div>
+    <div class="col-md-4 mb-2"><div class="card"><div class="card-body"><div class="text-muted small">High Priority count</div><div class="h4 mb-0">@Model.Summary.HighPriorityCount</div></div></div></div>
+</div>
+
+<h3>Defalut Config Params Online</h3>
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="small text-muted">Top N</div>
+                <div>@cfg.AnalysisParams.TopN</div>
+            </div>
+            <div class="col-md-3">
+                <div class="small text-muted">Docking threshold</div>
+                <div>@cfg.PlatformDefaults.DockingThreshold.ToString("F3", CultureInfo.InvariantCulture)</div>
+            </div>
+            <div class="col-md-3">
+                <div class="small text-muted">Similarity thresholds</div>
+                <div>
+                    interaction: @cfg.PlatformDefaults.SimilarityThresholdInteraction.ToString("F3", CultureInfo.InvariantCulture),
+                    known: @cfg.PlatformDefaults.SimilarityThresholdKnown.ToString("F3", CultureInfo.InvariantCulture)
+                </div>
+            </div>
+        </div>
+
+        <hr class="my-2" />
+
+        <div class="row">
+            <div class="col-md-4">
+                <div class="small text-muted">Rule bonus</div>
+                <div>
+                    all-models-pass: @cfg.RuleBonus.AllModelsPassBonus,
+                    interaction: @cfg.RuleBonus.InteractionBonus,
+                    known: @cfg.RuleBonus.KnownCompoundBonus
+                </div>
+                <div class="small text-muted mt-2">
+                    <strong>Rule Bonus Raw</strong> =
+                    (Bonus all-models-pass ¡Á AllModelsPassDocking)
+                    + (Bonus interaction ¡Á PassSimilarityInteraction)
+                    + (Bonus known ¡Á PassSimilarityKnown)
+                </div>
+                <div class="small text-muted mt-2">
+                    <strong>Rule Bonus Norm</strong> = Rule Bonus Raw ¡Â
+                    (Bonus all-models-pass + Bonus interaction + Bonus known)
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="small text-muted">Priority weights</div>
+                <div>
+                    docking: @cfg.PriorityWeights.DockingWeight,
+                    similarity: @cfg.PriorityWeights.SimilarityWeight,
+                    consistency: @cfg.PriorityWeights.ConsistencyWeight,
+                    ruleBonus: @cfg.PriorityWeights.RuleBonusWeight
+                </div>
+                <div class="small text-muted mt-2">
+                    <strong>Priority Score</strong> =
+                    (Docking Weight ¡Á Docking Mean Score)
+                    + (Similarity Weight ¡Á Similarity Score Norm)
+                    + (Consistency Weight ¡Á Consistency Score)
+                    + (Rule Bonus Weight ¡Á Rule Bonus Norm)
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="small text-muted mt-2">
+                    <strong>Docking Mean Score uses</strong>reverse min-max normalization within the current scorable batch;
+                    <strong>Similarity Score Norm</strong>uses forward min-max normalization;
+                    <strong>Consistency Score</strong> uses reverse min-max normalization on Docking Std.
+                </div>
+            </div>
+        </div>
+
+        <div class="small text-danger mt-2">
+            <strong>Higher Priority Score</strong> means higher relative priority within the current batch; it does not by itself mean that the candidate has passed the platform threshold criteria.
+        </div>
+    </div>
+</div>
+
+<h3>Set Config Params Online</h3>
+<form method="post" asp-controller="Job" asp-action="Analytics" asp-route-domainId="@Model.DomainId" asp-route-jobId="@Model.Summary.Job.Id" class="card card-body mb-4">
+    <div class="row">
+        <div class="col-md-2"><label class="small">Top N</label><input class="form-control form-control-sm" type="number" name="analysisParams.topN" min="1" value="@cfg.AnalysisParams.TopN" /></div>
+        <div class="col-md-2"><label class="small">Docking threshold</label><input class="form-control form-control-sm" type="number" step="0.1" name="platformDefaults.dockingThreshold" value="@cfg.PlatformDefaults.DockingThreshold.ToString(CultureInfo.InvariantCulture)" /></div>
+        <div class="col-md-2"><label class="small">Similarity interaction</label><input class="form-control form-control-sm" type="number" step="0.01" name="platformDefaults.similarityThresholdInteraction" value="@cfg.PlatformDefaults.SimilarityThresholdInteraction.ToString(CultureInfo.InvariantCulture)" /></div>
+        <div class="col-md-2"><label class="small">Similarity known</label><input class="form-control form-control-sm" type="number" step="0.01" name="platformDefaults.similarityThresholdKnown" value="@cfg.PlatformDefaults.SimilarityThresholdKnown.ToString(CultureInfo.InvariantCulture)" /></div>
+        <div class="col-md-2 d-flex align-items-end"><button type="submit" class="btn btn-primary btn-block">Run Analysis</button></div>
+    </div>
+    <div class="row mt-2">
+        <div class="col-md-2"><label class="small">Bonus all-models-pass</label><input class="form-control form-control-sm" type="number" step="1" name="ruleBonus.allModelsPassBonus" value="@cfg.RuleBonus.AllModelsPassBonus.ToString(CultureInfo.InvariantCulture)" /></div>
+        <div class="col-md-2"><label class="small">Bonus interaction</label><input class="form-control form-control-sm" type="number" step="1" name="ruleBonus.interactionBonus" value="@cfg.RuleBonus.InteractionBonus.ToString(CultureInfo.InvariantCulture)" /></div>
+        <div class="col-md-2"><label class="small">Bonus known</label><input class="form-control form-control-sm" type="number" step="1" name="ruleBonus.knownCompoundBonus" value="@cfg.RuleBonus.KnownCompoundBonus.ToString(CultureInfo.InvariantCulture)" /></div>
+        <div class="col-md-2"><label class="small">High priority max std</label><input class="form-control form-control-sm" type="number" step="0.05" name="analysisParams.highPriorityStdThreshold" value="@cfg.AnalysisParams.HighPriorityStdThreshold.ToString(CultureInfo.InvariantCulture)" /></div>
+        <div class="col-md-2"><label class="small">Weight docking</label><input class="form-control form-control-sm" type="number" step="1" name="priorityWeights.dockingWeight" value="@cfg.PriorityWeights.DockingWeight.ToString(CultureInfo.InvariantCulture)" /></div>
+        <div class="col-md-2"><label class="small">Weight similarity</label><input class="form-control form-control-sm" type="number" step="1" name="priorityWeights.similarityWeight" value="@cfg.PriorityWeights.SimilarityWeight.ToString(CultureInfo.InvariantCulture)" /></div>
+    </div>
+    <div class="row mt-2">
+        <div class="col-md-2"><label class="small">Weight consistency</label><input class="form-control form-control-sm" type="number" step="1" name="priorityWeights.consistencyWeight" value="@cfg.PriorityWeights.ConsistencyWeight.ToString(CultureInfo.InvariantCulture)" /></div>
+        <div class="col-md-2"><label class="small">Weight rule bonus</label><input class="form-control form-control-sm" type="number" step="1" name="priorityWeights.ruleBonusWeight" value="@cfg.PriorityWeights.RuleBonusWeight.ToString(CultureInfo.InvariantCulture)" /></div>
+        <div class="col-md-2"><label class="small">Moderate docking</label><input class="form-control form-control-sm" type="number" step="0.1" name="analysisParams.moderateDockingThreshold" value="@cfg.AnalysisParams.ModerateDockingThreshold.ToString(CultureInfo.InvariantCulture)" /></div>
+        <div class="col-md-2"><label class="small">Moderate similarity</label><input class="form-control form-control-sm" type="number" step="0.01" name="analysisParams.moderateSimilarityThreshold" value="@cfg.AnalysisParams.ModerateSimilarityThreshold.ToString(CultureInfo.InvariantCulture)" /></div>
+        <div class="col-md-2"><label class="small">Scatter size base</label><input class="form-control form-control-sm" type="number" step="1" name="plotParams.scatterSizeBase" value="@cfg.PlotParams.ScatterSizeBase.ToString(CultureInfo.InvariantCulture)" /></div>
+        <div class="col-md-2"><label class="small">Scatter size scale</label><input class="form-control form-control-sm" type="number" step="0.1" name="plotParams.scatterSizeScale" value="@cfg.PlotParams.ScatterSizeScale.ToString(CultureInfo.InvariantCulture)" /></div>
+    </div>
+
+    @foreach (var kv in routeConfig.Where(k => !new[] {
+    "analysisParams.topN",
+    "analysisParams.aggregateMethod",
+    "platformDefaults.dockingThreshold",
+    "platformDefaults.similarityThresholdInteraction",
+    "platformDefaults.similarityThresholdKnown",
+    "ruleBonus.allModelsPassBonus",
+    "ruleBonus.interactionBonus",
+    "ruleBonus.knownCompoundBonus",
+    "priorityWeights.dockingWeight",
+    "priorityWeights.similarityWeight",
+    "priorityWeights.consistencyWeight",
+    "priorityWeights.ruleBonusWeight",
+    "analysisParams.highPriorityStdThreshold",
+    "analysisParams.moderateDockingThreshold",
+    "analysisParams.moderateSimilarityThreshold",
+    "plotParams.scatterSizeBase",
+    "plotParams.scatterSizeScale"
+    }.Contains(k.Key)))
+    {
+        <input type="hidden" name="@kv.Key" value="@kv.Value" />
+    }
+</form>
+
+<h3>Figure Plot Online</h3>
+<div class="row mb-3 analytics-figure-grid">
+    <div class="col-md-6 mb-3">
+        <div class="card analytics-chart-card">
+            <div class="card-header">Docking distribution</div>
+            <div class="card-body">
+                <div class="analytics-chart-frame">
+                    <canvas id="chart-docking"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-3">
+        <div class="card analytics-chart-card">
+            <div class="card-header">Similarity distribution</div>
+            <div class="card-body">
+                <div class="analytics-chart-frame">
+                    <canvas id="chart-similarity"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-3">
+        <div class="card analytics-chart-card">
+            <div class="card-header">Top candidates bar</div>
+            <div class="card-body">
+                <div class="analytics-chart-frame analytics-chart-frame--tall">
+                    <canvas id="chart-top-bar"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-3">
+        <div class="card analytics-chart-card">
+            <div class="card-header">Model boxplot</div>
+            <div class="card-body">
+                <div class="analytics-chart-frame">
+                    <canvas id="chart-boxplot"></canvas>
+                </div>
+                <div class="small text-muted mt-2">Temporary pseudo-boxplot; planned migration to a true boxplot chart component/plugin.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-12 mb-3">
+        <div class="card analytics-chart-card">
+            <div class="card-header">Priority scatter</div>
+            <div class="card-body">
+                <div class="analytics-chart-frame analytics-chart-frame--wide">
+                    <canvas id="chart-priority-scatter"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-12 mb-3">
+        <div class="card analytics-chart-card">
+            <div class="card-header">Model correlation heatmap</div>
+            <div class="card-body">
+                <div id="chart-heatmap" class="table-responsive"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h3>Top N Candidates</h3>
+<table class="table table-striped table-hover table-maxwidth mt-3 w-100">
+    <thead>
+        <tr>
+            <th>Protein Symbol</th>
+            <th>Gene Symbol</th>
+            <th>Docking Mean</th>
+            <th>Docking Std</th>
+            <th>Similarity</th>
+            <th>Priority Score</th>
+            <th>Candidate Class</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var row in Model.Summary.TopCandidates)
+        {
+            <tr>
+                <td>@row.ProteinSymbol</td>
+                <td>@row.GeneSymbol</td>
+                <td>@(row.DockingMean?.ToString("F3", CultureInfo.InvariantCulture) ?? "N/A")</td>
+                <td>@(row.DockingStd?.ToString("F3", CultureInfo.InvariantCulture) ?? "N/A")</td>
+                <td>@(row.SimilarityScore?.ToString("F3", CultureInfo.InvariantCulture) ?? "N/A")</td>
+                <td>@(row.PriorityScore?.ToString("F2", CultureInfo.InvariantCulture) ?? "N/A")</td>
+                <td>@row.CandidateClass</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h3>
+    Grouped Summary
+</h3>
+<div class="mt-4">
+    <div class="d-flex justify-content-between align-items-center mt-4 mb-3 flex-wrap">
+        <div class="ra-view-toggle analytics-group-toggle mb-2">
+            <button class="ra-toggle-btn is-active" type="button" data-group-view="protein">Protein</button>
+            <button class="ra-toggle-btn" type="button" data-group-view="gene">Gene</button>
+        </div>
+    </div>
+
+    <div id="group-view-protein" class="analytics-group-panel">
+        <table class="table table-sm table-striped">
+            <thead>
+                <tr><th>Protein</th><th>Scorable Rows</th><th>Mean Score</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var group in Model.Summary.GroupedByProtein.Take(10))
+                {
+                    <tr>
+                        <td>@group.GroupKey</td>
+                        <td>@group.AnalyzableRows</td>
+                        <td>@group.MeanPriorityScore?.ToString("F2", CultureInfo.InvariantCulture)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div id="group-view-gene" class="analytics-group-panel d-none">
+        <table class="table table-sm table-striped">
+            <thead>
+                <tr><th>Gene</th><th>Scorable Rows</th><th>Priority Score</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var group in Model.Summary.GroupedByGene.Take(10))
+                {
+                    <tr>
+                        <td>@group.GroupKey</td>
+                        <td>@group.AnalyzableRows</td>
+                        <td>@group.MeanPriorityScore?.ToString("F2", CultureInfo.InvariantCulture)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="mt-4">
+    <button type="button"
+            class="btn btn-outline-primary"
+            id="download-summary-csv"
+            data-url="@summaryReportUrl">
+        Download Analytics Summary CSV <i class="fa fa-download"></i>
+    </button>
+
+    <button type="button"
+            class="btn btn-outline-primary"
+            id="download-full-csv"
+            data-url="@fullReportUrl">
+        Download Full Analysis CSV <i class="fa fa-download"></i>
+    </button>
+</div>
+
+
+@section Scripts {
+    <script>
+        window.jobAnalyticsPayload = @Html.Raw(JsonSerializer.Serialize(Model.FrontendPayload));
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <script src="~/js/pageAnalysis.js" asp-append-version="true"></script>
+}

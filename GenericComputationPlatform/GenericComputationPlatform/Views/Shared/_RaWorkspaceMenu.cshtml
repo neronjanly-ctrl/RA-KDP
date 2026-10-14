@@ -1,0 +1,36 @@
+﻿@{
+    var domainId = ViewContext.RouteData.Values["domainId"]?.ToString();
+    var active = ViewData["ActiveMenu"]?.ToString() ?? "";
+    var workspaceActive = active == "workspace" || active == "database" || active == "docking";
+}
+
+<li class="nav-item dropdown ra-section-dropdown nav-item-with-separator @(workspaceActive ? "show" : "")">
+    <a class="nav-link dropdown-toggle ra-section-dropdown-toggle @(workspaceActive ? "active" : "")"
+       href="javascript:void(0);"
+       id="WorkspaceMenu"
+       role="button"
+       data-toggle="dropdown"
+       aria-haspopup="true"
+       aria-expanded="@(workspaceActive ? "true" : "false")">
+        <span class="ra-section-dropdown-label">RA Workspace</span>
+    </a>
+
+    <div class="dropdown-menu dropdown-menu-right ra-section-dropdown-menu"
+         aria-labelledby="WorkspaceMenu">
+
+        <a class="dropdown-item ra-section-dropdown-item @(active == "database" ? "active" : "")"
+           asp-controller="Home"
+           asp-action="Targets"
+           asp-route-domainId="@domainId"
+           asp-route-tagId="">
+            Protein Database
+        </a>
+
+        <a class="dropdown-item ra-section-dropdown-item @(active == "docking" ? "active" : "")"
+           asp-controller="Job"
+           asp-action="New"
+           asp-route-domainId="@domainId">
+            Docking
+        </a>
+    </div>
+</li>

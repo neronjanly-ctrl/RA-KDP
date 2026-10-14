@@ -1,0 +1,525 @@
+﻿@model TargetListModel
+@using System.Linq
+@using System.Collections.Generic
+@using DockingDataModels
+
+@{
+    ViewData["Title"] = string.IsNullOrWhiteSpace(Model.TagName)
+        ? "RA Protein Database"
+        : $"RA Protein Database - {Model.TagName}";
+
+    var cavities = Model.Targets
+        .SelectMany(o => o.Cavities ?? new List<Cavity>())
+        .Where(o => o.Protein != null)
+        .OrderBy(o => o.Protein.ProteinName)
+        .ThenBy(o => o.BindingSite)
+        .ToList();
+
+    var topBanner = Url.Content("~/images/version1/target_1.png");
+
+    const string allCategoryKey = "all";
+
+    var categoryDefinitions = RaTargetCategories.All;
+
+    string ResolveCategoryKey(string proteinSymbol)
+    {
+        if (string.IsNullOrWhiteSpace(proteinSymbol)) return "other";
+        var normalized = proteinSymbol.Trim().ToUpperInvariant();
+        return categoryDefinitions.FirstOrDefault(def => def.Symbols.Contains(normalized))?.Key ?? "other";
+    }
+
+    string ResolveCategoryName(string categoryKey)
+    {
+        if (categoryKey == "other") return "Other / Unclassified";
+        return categoryDefinitions.FirstOrDefault(def => def.Key == categoryKey)?.Name ?? "Other / Unclassified";
+    }
+
+    var cavityItems = cavities.Select(cavity =>
+    {
+        var protein = cavity.Protein;
+        var proteinTags = protein.Tags ?? new List<ProteinTag>();
+        var cavityId = cavity.Id.StringifyId();
+        var imagePath = $"~/images/s/{cavity.ProteinId}-{cavity.BindingSite}-model_1.png";
+        var categoryKey = ResolveCategoryKey($"{protein.ProteinSymbol}_{protein.OrganismSymbol}");
+
+        var searchText = string.Join(" ",
+            new[]
+            {
+                protein.ProteinName,
+                protein.GeneSymbol,
+                protein.ProteinSymbol,
+                protein.Properties?.UniProt?.Id,
+                string.Join(" ", proteinTags.Select(t => t.Name))
+            }.Where(x => !string.IsNullOrWhiteSpace(x))
+        );
+
+        return new
+        {
+            CavityId = cavityId,
+            BindingSite = cavity.BindingSite,
+            ProteinName = protein.ProteinName,
+            GeneSymbol = protein.GeneSymbol,
+            ProteinSymbol = protein.ProteinSymbol,
+            OrganismSymbol = protein.OrganismSymbol,
+            Organism = protein.Organism,
+            UniProt = protein.Properties?.UniProt,
+            Chembl = protein.Properties?.Chembl,
+            CategoryKey = categoryKey,
+            CategoryName = ResolveCategoryName(categoryKey),
+            SearchText = searchText,
+            ImageUrl = Url.Content(imagePath),
+            DetailsUrl = Url.Action("Details", "Protein", new { domainId = Model.Domain.Id, cavityId })
+        };
+    }).ToList();
+
+    var categoryStats = categoryDefinitions
+        .Select(def => new
+        {
+            def.Key,
+            def.Name,
+            def.Description,
+            Count = cavityItems.Count(item => item.CategoryKey == def.Key)
+        })
+        .Where(x => x.Count > 0)
+        .ToList();
+}
+
+@section Menu {
+    @{
+        ViewData["ActiveMenu"] = "database";
+    }
+    <partial name="_RaWorkspaceMenu" />
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/pageFeatures.css" asp-append-version="true" />
+    <style>
+        .ra-ref-links {
+            color: #111827;
+        }
+
+        .ra-ref-links .ra-reference-id {
+            color: #111827;
+            font: inherit;
+            text-decoration: none;
+        }
+    </style>
+}
+
+<div class="ra-platform-home">
+    <section class="ra-section ra-header-hero">
+        <div class="ra-banner ra-banner--overview">
+            <img src="@topBanner" alt="RA Protein Database" />
+            <div class="ra-banner-overlay ra-banner-overlay--target"></div>
+
+            <div class="ra-banner-inner ra-container">
+                <div class="ra-banner-copy">
+                    <div class="ra-kicker">Knowledge Base</div>
+
+                    <h1 class="ra-hero-title">
+                        Knowledgebase workspace
+                    </h1>
+
+                    <p class="ra-hero-desc">
+                        Explore curated rheumatoid arthritis related targets, protein records, and docking-ready structures
+                        in this research workspace designed for efficient browsing, comparison, and computational analysis.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="ra-module ra-module--light" id="search">
+        <div class="ra-module-body ra-container">
+            <div class="ra-editorial-head mb-5">
+                <h2 class="ra-hero-title-docking">Search &amp; view RA targets</h2>
+                <p class="ra-section-desc">
+                    Browse @cavityItems.Count structured protein records across @categoryStats.Count functional categories.
+                    Search by name, gene, UniProt, or tag to quickly find your target.
+                </p>
+            </div>
+
+            <div class="ra-card-shell ra-toolbar">
+                <div class="ra-toolbar-top">
+                    <div class="ra-search-wrap">
+                        <label class="sr-only" for="raSearchInput">Search target records</label>
+                        <input id="raSearchInput"
+                               class="ra-search"
+                               type="text"
+                               placeholder="Search by protein name, gene symbol, UniProt ID, or tag..." />
+                    </div>
+
+                    <div class="ra-controls">
+                        <div class="ra-view-toggle">
+                            <button class="ra-toggle-btn" type="button" data-view="card" aria-pressed="false">Card view</button>
+                            <button class="ra-toggle-btn is-active" type="button" data-view="table" aria-pressed="true">Table view</button>
+                        </div>
+
+                        <div class="ra-page-size" aria-label="Records per page">
+                            <span class="ra-page-size-label">Rows</span>
+                            <button class="ra-size-btn is-active" type="button" data-size="20">20</button>
+                            <button class="ra-size-btn" type="button" data-size="50">50</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ra-toolbar-bottom">
+                    <div class="ra-category-panel" aria-label="Protein functional categories">
+                        <div class="ra-category-row ra-category-row--all">
+                            <button type="button"
+                                    class="ra-category-chip ra-category-chip--all is-active"
+                                    data-category="@allCategoryKey"
+                                    data-category-name="All categories"
+                                    aria-pressed="true">
+                                <span class="ra-category-label">All categories</span>
+                            </button>
+                        </div>
+
+                        @if (categoryStats.Count >= 3)
+                        {
+                            <div class="ra-category-row ra-category-row--main">
+                                @for (var i = 0; i < 3; i++)
+                                {
+                                    var category = categoryStats[i];
+                                    <button type="button"
+                                            class="ra-category-chip ra-category-chip--grid"
+                                            data-category="@category.Key"
+                                            data-category-name="@category.Name"
+                                            aria-pressed="false"
+                                            title="@category.Description">
+                                        <span class="ra-category-label">@category.Name</span>
+                                    </button>
+                                }
+                            </div>
+                        }
+
+                        @if (categoryStats.Count > 3)
+                        {
+                            <div class="ra-category-row ra-category-row--tail">
+                                @for (var i = 3; i < categoryStats.Count; i++)
+                                {
+                                    var category = categoryStats[i];
+                                    <button type="button"
+                                            class="ra-category-chip ra-category-chip--tail"
+                                            data-category="@category.Key"
+                                            data-category-name="@category.Name"
+                                            aria-pressed="false"
+                                            title="@category.Description">
+                                        <span class="ra-category-label">@category.Name</span>
+                                    </button>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="ra-results-block">
+        <div class="ra-results-heading">
+            <h2 class="ra-section-title ra-results-title">Results</h2>
+            <p id="raResultSummary" class="ra-result-summary" aria-live="polite"></p>
+        </div>
+
+        <div id="raCardView" class="ra-card-view"></div>
+        <div id="raTableView" class="ra-table-view"></div>
+
+        <div id="raEmptyState" class="ra-empty mt-3" style="display:none;">
+            No targets are available for the current filter.
+        </div>
+
+        <div class="ra-pagination">
+            <div class="ra-page-info">
+                Page <span id="raCurrentPage">1</span> / <span id="raTotalPages">1</span>
+            </div>
+            <div class="ra-page-actions">
+                <button class="ra-page-btn" id="raPrevPage" type="button">Previous</button>
+                <button class="ra-page-btn" id="raNextPage" type="button">Next</button>
+            </div>
+        </div>
+
+        <div class="ra-footer-actions">
+            <a class="btn-ra-secondary"
+               asp-controller="Home"
+               asp-action="Index"
+               asp-route-domainId="@Model.Domain.Id">
+                Back to RA Workspace
+            </a>
+            <a class="btn-ra-primary"
+               asp-controller="Job"
+               asp-action="New"
+               asp-route-domainId="@Model.Domain.Id">
+                Continue to Docking
+            </a>
+        </div>
+    </section>
+</div>
+
+<div class="modal fade" id="imagePreviewModal" tabindex="-1" role="dialog" aria-labelledby="imagePreviewTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content" style="border-radius: 24px; overflow: hidden;">
+            <div class="modal-header">
+                <h5 class="modal-title" id="imagePreviewTitle">Preview</h5>
+                <button type="button" class="close ml-2" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <img id="imagePreviewTarget"
+                     src=""
+                     alt=""
+                     style="width:100%; border-radius:16px; margin-bottom:1rem; background:#eef3fa;" />
+
+                <div class="ra-modal-meta">
+                    <div><strong>Protein:</strong> <span id="imagePreviewProteinName"></span></div>
+                    <div><strong>Gene:</strong> <span id="imagePreviewGene"></span></div>
+                    <div><strong>Binding site:</strong> <span id="imagePreviewBinding"></span></div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const allItems = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(cavityItems));
+
+            const searchInput = document.getElementById("raSearchInput");
+            const viewButtons = Array.from(document.querySelectorAll(".ra-view-toggle .ra-toggle-btn"));
+            const sizeButtons = Array.from(document.querySelectorAll(".ra-page-size .ra-size-btn"));
+            const categoryButtons = Array.from(document.querySelectorAll(".ra-category-chip"));
+
+            const cardView = document.getElementById("raCardView");
+            const tableView = document.getElementById("raTableView");
+            const emptyState = document.getElementById("raEmptyState");
+            const resultSummary = document.getElementById("raResultSummary");
+
+            const currentPageLabel = document.getElementById("raCurrentPage");
+            const totalPagesLabel = document.getElementById("raTotalPages");
+            const prevPageBtn = document.getElementById("raPrevPage");
+            const nextPageBtn = document.getElementById("raNextPage");
+
+            let currentView = window.matchMedia("(max-width: 768px)").matches ? "card" : "table";
+            let pageSize = 20;
+            let currentPage = 1;
+            let currentCategory = "all";
+            let totalPages = 1;
+
+            function safeText(value) {
+                return value ?? "";
+            }
+
+            function renderPreviewButton(item, buttonClass, imageClass) {
+                return `
+                            <button type="button"
+                                    class="${buttonClass}"
+                                    data-toggle="modal"
+                                    data-target="#imagePreviewModal"
+                                    data-image="${safeText(item.ImageUrl)}"
+                                    data-title="${safeText(item.ProteinName)}"
+                                    data-subtitle="${safeText(item.GeneSymbol)}"
+                                    data-binding="${safeText(item.BindingSite)}">
+                                <img class="${imageClass}" src="${safeText(item.ImageUrl)}" alt="${safeText(item.ProteinName)}">
+                            </button>`;
+            }
+
+            function renderCardItem(item) {
+                return `
+                            <article class="ra-target-card">
+                                ${renderPreviewButton(item, "ra-target-thumb-btn", "ra-target-thumb")}
+                                <div class="ra-target-body">
+                                    <div class="ra-target-title">${safeText(item.ProteinName)}</div>
+                                    <div class="ra-target-sub"><strong>Gene:</strong> ${safeText(item.GeneSymbol)}</div>
+                                    <div class="ra-target-actions">
+                                        <a class="btn-ra-primary" href="${safeText(item.DetailsUrl)}">View details</a>
+                                    </div>
+                                </div>
+                            </article>`;
+            }
+
+            function renderReferenceIds(item) {
+                const refs = [];
+
+                if (item.UniProt) {
+                    refs.push(`<span class="ra-reference-id">${safeText(item.UniProt.Id)}</span>`);
+                }
+
+                if (item.Chembl) {
+                    refs.push(`<span class="ra-reference-id">${safeText(item.Chembl.Id)}</span>`);
+                }
+
+                return refs.join(" ");
+            }
+
+            function renderTableRow(item) {
+                return `
+                            <tr>
+                                <td>${renderPreviewButton(item, "ra-table-thumb-btn", "ra-table-thumb")}</td>
+                                <td><div class="ra-table-name">${safeText(item.ProteinName)}</div></td>
+                                <td><div class="ra-table-name">${safeText(item.GeneSymbol)}</div></td>
+                                <td><div class="ra-table-meta">${safeText(item.BindingSite)}</div></td>
+                                <td><div class="ra-table-meta">${safeText(item.Organism).replace(/;/g, "; ")}</div></td>
+                                <td><div class="ra-ref-links">${renderReferenceIds(item)}</div></td>
+                                <td><a class="btn-ra-primary" href="${safeText(item.DetailsUrl)}">Details</a></td>
+                            </tr>`;
+            }
+
+            function getFilteredData() {
+                const q = (searchInput.value || "").trim().toLowerCase();
+
+                return allItems.filter(item => {
+                    const catMatch = currentCategory === "all" || item.CategoryKey === currentCategory;
+                    const searchMatch = !q || safeText(item.SearchText).toLowerCase().includes(q);
+                    return catMatch && searchMatch;
+                });
+            }
+
+            function renderCardView(pageItems) {
+                cardView.innerHTML = pageItems.map(renderCardItem).join("");
+            }
+
+            function renderTableView(pageItems) {
+                const rows = pageItems.map(renderTableRow).join("");
+
+                tableView.innerHTML = `
+                            <div class="ra-table-shell">
+                                <table class="ra-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Preview</th>
+                                            <th>Protein</th>
+                                            <th>Gene / Symbol</th>
+                                            <th>Binding Site</th>
+                                            <th>Organism</th>
+                                            <th>UniProt / ChEMBL</th>
+                                            <th>Details</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${rows}
+                                    </tbody>
+                                </table>
+                            </div>`;
+            }
+
+            function render() {
+                const filtered = getFilteredData();
+                const total = filtered.length;
+
+                totalPages = Math.max(1, Math.ceil(total / pageSize));
+                currentPage = Math.min(Math.max(currentPage, 1), totalPages);
+
+                const start = (currentPage - 1) * pageSize;
+                const pageItems = filtered.slice(start, start + pageSize);
+
+                viewButtons.forEach(button => {
+                    const isActive = button.dataset.view === currentView;
+                    button.classList.toggle("is-active", isActive);
+                    button.setAttribute("aria-pressed", isActive ? "true" : "false");
+                });
+
+                if (currentView === "card") {
+                    renderCardView(pageItems);
+                    cardView.style.display = "grid";
+                    tableView.style.display = "none";
+                    tableView.innerHTML = "";
+                } else {
+                    renderTableView(pageItems);
+                    tableView.style.display = "block";
+                    cardView.style.display = "none";
+                    cardView.innerHTML = "";
+                }
+
+                emptyState.style.display = total === 0 ? "block" : "none";
+                currentPageLabel.textContent = currentPage;
+                totalPagesLabel.textContent = totalPages;
+                prevPageBtn.disabled = currentPage <= 1;
+                nextPageBtn.disabled = currentPage >= totalPages;
+                const firstRecord = total === 0 ? 0 : start + 1;
+                const lastRecord = Math.min(start + pageItems.length, total);
+                resultSummary.textContent = total === 0
+                    ? "No matching records"
+                    : `${firstRecord}–${lastRecord} of ${total} records`;
+            }
+
+            viewButtons.forEach(btn => {
+                btn.addEventListener("click", () => {
+                    viewButtons.forEach(b => {
+                        b.classList.remove("is-active");
+                        b.setAttribute("aria-pressed", "false");
+                    });
+
+                    btn.classList.add("is-active");
+                    btn.setAttribute("aria-pressed", "true");
+                    currentView = btn.dataset.view;
+                    render();
+                });
+            });
+
+            sizeButtons.forEach(btn => {
+                btn.addEventListener("click", () => {
+                    sizeButtons.forEach(b => b.classList.remove("is-active"));
+                    btn.classList.add("is-active");
+                    pageSize = parseInt(btn.dataset.size, 10) || 20;
+                    currentPage = 1;
+                    render();
+                });
+            });
+
+            categoryButtons.forEach(btn => {
+                btn.addEventListener("click", () => {
+                    categoryButtons.forEach(b => {
+                        b.classList.remove("is-active");
+                        b.setAttribute("aria-pressed", "false");
+                    });
+
+                    btn.classList.add("is-active");
+                    btn.setAttribute("aria-pressed", "true");
+                    currentCategory = btn.dataset.category || "all";
+                    currentPage = 1;
+                    render();
+                });
+            });
+
+            let searchTimer;
+            searchInput.addEventListener("input", () => {
+                clearTimeout(searchTimer);
+                searchTimer = setTimeout(() => {
+                    currentPage = 1;
+                    render();
+                }, 180);
+            });
+
+            prevPageBtn.addEventListener("click", () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    render();
+                }
+            });
+
+            nextPageBtn.addEventListener("click", () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    render();
+                }
+            });
+
+            $("#imagePreviewModal").on("show.bs.modal", function (e) {
+                const t = $(e.relatedTarget);
+                $("#imagePreviewProteinName").text(t.data("title") || "");
+                $("#imagePreviewGene").text(t.data("subtitle") || "");
+                $("#imagePreviewBinding").text(t.data("binding") || "");
+                $("#imagePreviewTarget").attr("src", t.data("image") || "");
+            });
+
+            render();
+        });
+    </script>
+}
