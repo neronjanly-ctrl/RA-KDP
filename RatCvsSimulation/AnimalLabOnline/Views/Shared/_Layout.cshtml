@@ -1,0 +1,101 @@
+﻿@inject IConfiguration _config
+@{
+    var title = (string)ViewData["Title"];
+    var appName = _config["Manifest:AppName"];
+    if (string.IsNullOrEmpty(title))
+    {
+        title = appName;
+    }
+    else
+    {
+        title = $"{title} - {appName}";
+    }
+
+    var baseUri = new Uri(_config["ExternalUrls:Hosting"].TrimEnd('/'));
+    var fullUri = new Uri(baseUri, baseUri.AbsolutePath.TrimEnd('/') + Context.Request.Path.Value); // Context.Request.Path always starts with a slash
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>@title</title>
+
+    <meta name="keywords" content="@_config["Manifest:Keywords"]" />
+    <meta name="description" content="@_config["Manifest:Description"]" />
+    <meta name="author" content="ryan" />
+    <meta property="og:title" content="@title - From XieLab" />
+    <meta property="og:image" content="@baseUri.AbsolutePath/sharing.png" />
+    <meta property="og:description" content="@_config["Manifest:Description"]" />
+
+    <link rel="canonical" href="@fullUri" />
+
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileImage" content="@baseUri.PathAndQuery/ms-icon-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+
+    <link rel="stylesheet" href="~/lib/dseg/css/dseg.css" />
+
+    <environment include="Development">
+        <link rel="stylesheet" href="~/lib/@@fortawesome/css/all.css" />
+        <link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.css" />
+        @RenderSection("Styles", false)
+        <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    </environment>
+    <environment exclude="Development">
+        <link rel="stylesheet" href="~/lib/@@fortawesome/css/all.min.css" />
+        <link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.min.css" />
+        @RenderSection("Styles", false)
+        <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
+    </environment>
+</head>
+<body>
+    @RenderBody()
+
+    <partial name="_CookieConsentPartial" />
+
+    @RenderSection("Footer", false)
+
+    <environment include="Development">
+        <script src="~/lib/jquery/jquery.js"></script>
+        <script src="~/lib/popper.js/popper.js"></script>
+        <script src="~/lib/bootstrap/js/bootstrap.js"></script>
+        <script src="~/lib/d3/d3.js"></script>
+        <script src="~/js/site.js" asp-append-version="true"></script>
+    </environment>
+    <environment exclude="Development">
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+                asp-fallback-src="~/lib/jquery/jquery.min.js"
+                asp-fallback-test="window.jQuery"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.4/umd/popper.min.js"
+                asp-fallback-src="~/lib/popper.js/popper.min.js"
+                asp-fallback-test="Popper"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
+                asp-fallback-src="~/lib/bootstrap/js/bootstrap.min.js"
+                asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.modal"></script>
+        <script src="https://d3js.org/d3.v5.min.js"
+                asp-fallback-src="~/lib/d3/d3.min.js"
+                asp-fallback-test="d3"></script>
+        <script src="~/js/site.min.js" asp-append-version="true"></script>
+    </environment>
+    <script src="~/lib/JSME/jsme.nocache.js"></script>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

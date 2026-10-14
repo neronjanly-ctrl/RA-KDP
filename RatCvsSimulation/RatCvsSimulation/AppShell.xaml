@@ -1,0 +1,251 @@
+﻿<Page x:Name="Root"
+      x:Class="RatCvsSimulation.AppShell"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:local="using:RatCvsSimulation"
+      xmlns:controls="using:RatCvsSimulation.Controls"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+      KeyDown="AppShell_KeyDown"
+      TabNavigation="Cycle"
+      mc:Ignorable="d">
+
+    <!-- Using a Page as the root for the app provides a design time experience as well as ensures that
+         when it runs on Mobile the app content won't appear under the system's StatusBar which is visible
+         by default with a transparent background.  It will also take into account the presence of software
+         navigation buttons if they appear on a device.  An app can opt-out by switching to UseCoreWindow.
+    -->
+
+    <Page.Resources>
+        <DataTemplate x:Key="ActionMenuItemTemplate" x:DataType="local:ActionMenuItem">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="48" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <!-- Showing a ToolTip and the Label is redundant.  We put the ToolTip on the icon.
+                     It appears when the user hovers over the icon, but not the label which provides
+                     value when the SplitView is 'Compact' while reducing the likelihood of showing
+                     redundant information when the label is shown.-->
+                <FontIcon x:Name="Glyph" FontSize="16" FontFamily="Segoe MDL2 Assets"
+                          Foreground="#666" Glyph="{x:Bind SymbolAsChar}"
+                          VerticalAlignment="Center" HorizontalAlignment="Center" ToolTipService.ToolTip="{x:Bind Label}"/>
+                <TextBlock x:Name="Text" Grid.Column="1" Text="{x:Bind Label}"
+                           Foreground="#333" Style="{StaticResource BodyTextBlockStyle}"
+                           TextWrapping="NoWrap" VerticalAlignment="Center"/>
+            </Grid>
+        </DataTemplate>
+    </Page.Resources>
+
+    <Grid x:Name="LayoutRoot">
+        <!-- Adaptive triggers -->
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource LargeWindowSnapPoint}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="RootSplitView.DisplayMode" Value="CompactInline"/>
+                        <Setter Target="RootSplitView.IsPaneOpen" Value="True"/>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource MediumWindowSnapPoint}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="RootSplitView.DisplayMode" Value="CompactOverlay"/>
+                        <Setter Target="RootSplitView.IsPaneOpen" Value="False"/>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource MinWindowSnapPoint}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="RootSplitView.DisplayMode" Value="Overlay"/>
+                        <Setter Target="RootSplitView.IsPaneOpen" Value="False"/>
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+
+        <!-- Top-level navigation menu + app content -->
+        <SplitView x:Name="RootSplitView"
+                   DisplayMode="Inline"
+                   OpenPaneLength="200"
+                   PaneClosed="RootSplitView_PaneClosed"
+                   IsTabStop="False">
+
+            <SplitView.Pane>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <!-- main menu -->
+                        <RowDefinition Height="auto"/>
+                        <!-- line separater -->
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <!-- line separater -->
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <!-- line separater -->
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <!-- bottom space -->
+                        <RowDefinition Height="6"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="48"/>
+                        <ColumnDefinition Width="48"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- A custom ListView to display the items in the pane.  The automation Name is set in the ContainerContentChanging event. -->
+                    <controls:NavMenuListView x:Name="NavMenuList"
+                                              Grid.ColumnSpan="3"
+                                              TabIndex="3"
+                                              Margin="0,52,0,0"
+                                              SelectionMode="None"
+                                              ContainerContentChanging="ActionMenuItemContainerContentChanging"
+                                              ItemContainerStyle="{StaticResource ActionMenuItemContainerStyle}"
+                                              ItemTemplate="{StaticResource ActionMenuItemTemplate}"
+                                              ItemInvoked="NavMenuList_ItemInvoked"/>
+
+                    <Rectangle x:Name="NavPaneDivider2"
+                               Grid.Row="1"
+                               Grid.ColumnSpan="3"
+                               Height="1"
+                               Fill="{ThemeResource SystemControlForegroundBaseLowBrush}"
+                               Margin="16,6,16,6"/>
+
+                    <ListView Grid.Row="2" Grid.ColumnSpan="3"
+                              ItemContainerStyle="{StaticResource ActionMenuItemContainerStyle}"
+                              IsItemClickEnabled="True"
+                              ItemClick="ListView_ItemClick">
+                        <ListView.Items>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="48" />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <PathIcon Grid.Column="0"
+                                  Foreground="#666" ToolTipService.ToolTip="Standard Drugs"
+                                  VerticalAlignment="Center" HorizontalAlignment="Center"
+                                  Data="M15.8125057220459,17.4375152587891L17.75,19.6875 17.4375,20 15.5000057220459,17.7500152587891 15.8125057220459,17.4375152587891z M5.12499904632568,2.43751525878906L2.18750047683716,5.06250381469727 7.3125,11.0000038146973 10.3125019073486,8.37501525878906 9.93749809265137,7.93750762939453 7.74999809265137,9.81250762939453 7.3125,9.31251525878906 9.5,7.43751525878906 8.37499809265137,6.1250114440918 6.18749809265137,8.0000114440918 5.68749523162842,7.5 7.87499618530273,5.625 6.75000381469727,4.31251525878906 4.56250286102295,6.18751525878906 4.12499523162842,5.68750381469727 6.31249618530273,3.81250381469727 5.12499904632568,2.43751525878906z M5.24999713897705,0.9375L15.6250038146973,12.8750038146973 16.1875038146973,13.8359432220459 16.3750019073486,14.9375152587891 16.1015625,16.1562557220459 15.3125038146973,17.1875 14.1718769073486,17.7968864440918 12.9375019073486,17.9375076293945 11.875,17.6250038146973 10.9999961853027,16.9375038146973 0.625000238418579,4.93751525878906 5.24999713897705,0.9375z M3.18749523162842,0L3.87499904632568,0.812511444091797 3.12500095367432,1.50001525878906 3.56249904632568,2.00000762939453 1.93749451637268,3.4375 1.49999642372131,2.87500381469727 0.687494575977325,3.56250762939453 0,2.75001525878906 3.18749523162842,0z"/>
+                                <TextBlock Grid.Column="1" Text="Standard Drugs"
+                                   Foreground="#333" Style="{StaticResource BodyTextBlockStyle}"
+                                   TextWrapping="NoWrap" VerticalAlignment="Center"/>
+                            </Grid>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="48" />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <PathIcon Grid.Column="0"
+                                  Foreground="#666" ToolTipService.ToolTip="Unknown Drugs"
+                                  VerticalAlignment="Center" HorizontalAlignment="Center"
+                                  Data="M15.8125057220459,17.4375152587891L17.75,19.6875 17.4375,20 15.5000057220459,17.7500152587891 15.8125057220459,17.4375152587891z M5.12499904632568,2.43751525878906L2.18750047683716,5.06250381469727 7.3125,11.0000038146973 10.3125019073486,8.37501525878906 9.93749809265137,7.93750762939453 7.74999809265137,9.81250762939453 7.3125,9.31251525878906 9.5,7.43751525878906 8.37499809265137,6.1250114440918 6.18749809265137,8.0000114440918 5.68749523162842,7.5 7.87499618530273,5.625 6.75000381469727,4.31251525878906 4.56250286102295,6.18751525878906 4.12499523162842,5.68750381469727 6.31249618530273,3.81250381469727 5.12499904632568,2.43751525878906z M5.24999713897705,0.9375L15.6250038146973,12.8750038146973 16.1875038146973,13.8359432220459 16.3750019073486,14.9375152587891 16.1015625,16.1562557220459 15.3125038146973,17.1875 14.1718769073486,17.7968864440918 12.9375019073486,17.9375076293945 11.875,17.6250038146973 10.9999961853027,16.9375038146973 0.625000238418579,4.93751525878906 5.24999713897705,0.9375z M3.18749523162842,0L3.87499904632568,0.812511444091797 3.12500095367432,1.50001525878906 3.56249904632568,2.00000762939453 1.93749451637268,3.4375 1.49999642372131,2.87500381469727 0.687494575977325,3.56250762939453 0,2.75001525878906 3.18749523162842,0z"/>
+                                <TextBlock Grid.Column="1" Text="Unknown Drugs"
+                                   Foreground="#333" Style="{StaticResource BodyTextBlockStyle}"
+                                   TextWrapping="NoWrap" VerticalAlignment="Center"/>
+                            </Grid>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="48" />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+                                <PathIcon Grid.Column="0"
+                                  Foreground="#666" ToolTipService.ToolTip="Nerve Stimulation"
+                                  VerticalAlignment="Center" HorizontalAlignment="Center"
+                                  Data="M7.35687637329102,1.24562501907349L3.13000082969666,8.92749977111816 6.72000122070313,8.92749977111816 4.15312623977661,14.2525005340576 11.1875019073486,7.45062446594238 7.28437662124634,7.45062446594238 11.5450019836426,1.24562501907349 7.35687637329102,1.24562501907349z M6.62062644958496,0L13.9100027084351,0 9.65000247955322,6.20500040054321 14.2668771743774,6.20500040054321 0,20 4.73687601089478,10.1731252670288 1.02312564849854,10.1731252670288 6.62062644958496,0z"/>
+                                <TextBlock Grid.Column="1" Text="Nerve Stimulation"
+                                   Foreground="#333" Style="{StaticResource BodyTextBlockStyle}"
+                                   TextWrapping="NoWrap" VerticalAlignment="Center"/>
+                            </Grid>
+                        </ListView.Items>
+                    </ListView>
+
+                    <Rectangle x:Name="NavPaneDivider3"
+                               Grid.Row="3"
+                               Grid.ColumnSpan="3"
+                               Height="1"
+                               Fill="{ThemeResource SystemControlForegroundBaseLowBrush}"
+                               Margin="16,6,16,6"/>
+
+                    <ToggleButton Grid.Row="4" Grid.ColumnSpan="3"
+                                  Style="{StaticResource ToggleButtonStyle}"
+                                  Checked="RatVisToggleButton_Checked"
+                                  Unchecked="RatVisToggleButton_Unchecked">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="48" />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <PathIcon Grid.Column="0"
+                                  Foreground="#666" ToolTipService.ToolTip="Show Visualization"
+                                  VerticalAlignment="Center" HorizontalAlignment="Center"
+                                  Data="M5.75358963012695,10.1490716934204L5.7947826385498,10.1515045166016 6.15173625946045,10.597240447998 5.70726299285889,10.9554529190063 5.35030841827393,10.5097188949585 5.75358963012695,10.1490716934204z M6.96881628036499,4.98892211914063L6.31837034225464,5.20717811584473 5.9697470664978,5.6638240814209 6.26043891906738,6.85234594345093 7.07845115661621,8.39615535736084 7.7103009223938,9.37858581542969 6.54222345352173,9.37484836578369 6.53722715377808,9.37484836578369 5.63013458251953,9.57791042327881 4.65917873382568,10.1008148193359 2.84112763404846,11.588451385498 16.7280426025391,11.588451385498 17.7229957580566,10.5959329605103 18.172721862793,9.60004997253418 18.2960948944092,8.22679328918457 18.0507164001465,7.52945613861084 17.4392585754395,6.75641965866089 16.5165634155273,6.06235980987549 15.3374738693237,5.60195302963257 13.128737449646,5.53430223464966 11.1857719421387,6.41065645217896 9.85692501068115,7.53925704956055 9.29585933685303,8.10118293762207 8.17465400695801,9.31860446929932 8.19340229034424,7.6643328666687 7.90646076202393,5.76007461547852 7.06220197677612,4.99387311935425 6.96881628036499,4.98892211914063z M16.4619636535645,9.20863021747209E-05L16.6837558746338,0.0987609252333641 16.6737575531006,0.546871960163116 16.2095432281494,1.11904168128967 15.9431409835815,1.91057956218719 16.2593860626221,2.3774402141571 16.8860206604004,2.67813396453857 17.4100017547607,2.75805306434631 18.1565570831299,2.89640831947327 19.1506080627441,3.50677967071533 19.5936794281006,4.08546304702759 19.9265098571777,5.03044652938843 19.972261428833,6.28168058395386 19.5540904998779,7.77911472320557 19.5229625701904,7.84751272201538 19.5269908905029,7.86536026000977 19.5635414123535,8.13492202758789 19.3072834014893,10.2455472946167 18.5039005279541,11.6787586212158 17.6358318328857,12.5040407180786 17.1855201721191,12.7908802032471 17.0505237579346,12.8589887619019 0,12.8589887619019 0.881214797496796,11.8140573501587 1.41863286495209,11.2163381576538 2.49380111694336,10.1717472076416 3.92543959617615,9.06211757659912 5.53226804733276,8.26928615570068 4.90049743652344,6.84141778945923 4.72479724884033,5.41071605682373 5.62054061889648,4.14791297912598 7.19594860076904,3.73020195960999 7.72944116592407,3.85866189002991 8.36277389526367,4.2375955581665 8.95438861846924,4.99654150009155 9.3627290725708,6.26503896713257 10.4301786422729,5.38947010040283 12.8660144805908,4.28376483917236 15.6187086105347,4.36204671859741 17.7439804077148,5.34730243682861 19.1395149230957,6.87827253341675 19.1821918487549,6.95549440383911 19.2179718017578,6.833824634552 19.270149230957,4.99223899841309 18.7374858856201,3.9898898601532 17.964916229248,3.50302982330322 17.356876373291,3.39115834236145 16.7228202819824,3.29194283485413 15.908766746521,2.90679860115051 15.310022354126,1.96557784080505 15.7045488357544,0.727960109710693 16.235013961792,0.0875111967325211 16.4619636535645,9.20863021747209E-05z"/>
+                            <TextBlock Grid.Column="1" Text="Show Visualization"
+                                   Foreground="#333" Style="{StaticResource BodyTextBlockStyle}"
+                                   TextWrapping="NoWrap" VerticalAlignment="Center"/>
+                        </Grid>
+                    </ToggleButton>
+
+                    <!--<Button x:Name="FeedbackNavPaneButton"
+                            Grid.Row="2"
+                            Grid.Column="1"
+                            Style="{StaticResource SplitViewPaneButtonStyle}"
+                            Content="&#xE76E;"
+                            AutomationProperties.Name="Feedback"
+                            ToolTipService.ToolTip="Feedback"/>-->
+
+                    <Rectangle x:Name="NavPaneDivider"
+                               Grid.Row="5"
+                               Grid.ColumnSpan="3"
+                               Height="1"
+                               Fill="{ThemeResource SystemControlForegroundBaseLowBrush}"
+                               Margin="16,6,16,6"/>
+
+                    <Button x:Name="SettingsNavPaneButton"
+                            Grid.Row="6"
+                            Grid.Column="2"
+                            Style="{StaticResource SplitViewPaneButtonStyle}"
+                            Content="&#xE713;"
+                            AutomationProperties.Name="Settings"
+                            Click="SettingsNavPaneButton_Click"
+                            ToolTipService.ToolTip="Settings"/>
+                </Grid>
+            </SplitView.Pane>
+
+            <!-- OnNavigatingToPage we synchronize the selected item in the nav menu with the current page.
+                 OnNavigatedToPage we move keyboard focus to the first item on the page after it's loaded and update the Back button. -->
+            <Frame x:Name="frame"
+                   Margin="0"
+                   Navigating="OnNavigatingToPage"
+                   Navigated="OnNavigatedToPage">
+                <Frame.ContentTransitions>
+                    <TransitionCollection>
+                        <NavigationThemeTransition>
+                            <NavigationThemeTransition.DefaultNavigationTransitionInfo>
+                                <EntranceNavigationTransitionInfo/>
+                            </NavigationThemeTransition.DefaultNavigationTransitionInfo>
+                        </NavigationThemeTransition>
+                    </TransitionCollection>
+                </Frame.ContentTransitions>
+            </Frame>
+        </SplitView>
+
+        <!-- Declared last to have it rendered above everything else, but it needs to be the first item in the tab sequence. -->
+        <ToggleButton x:Name="TogglePaneButton"
+                      TabIndex="1"
+                      Margin="0,4,0,0"
+                      Style="{StaticResource SplitViewTogglePaneButtonStyle}"
+                      IsChecked="{Binding IsPaneOpen, ElementName=RootSplitView, Mode=TwoWay}"
+                      Unchecked="TogglePaneButton_Unchecked"
+                      Checked="TogglePaneButton_Checked"
+                      AutomationProperties.Name="Menu"
+                      ToolTipService.ToolTip="Menu" />
+    </Grid>
+</Page>

@@ -1,0 +1,126 @@
+﻿@model BenchViewModel
+@inject IConfiguration _config
+@{
+    if (Context.IsAjaxRequest())
+    {
+        Layout = null;
+    }
+
+    var simulation = Model?.Simulation;
+
+    double opacity = _config.GetValue<double>("SimulationOptions:OrganOpacity", 1.0);
+}
+
+<div id="simulation-container">
+    @if (simulation != null)
+    {
+        <script>
+            setupAnimation(@Html.Raw(simulation.OrganNames.ToJsonArray()), @Html.Raw(simulation.CanvasOrgans.ToJsonArray()),
+                @Html.Raw(simulation.OrganConnections.ToJsonArray()), @Html.Raw(simulation.Selectors.ToJsonArray()),
+                { name: "@Model.SelectedDrug.Name", dose: "@simulation.DrugDose", admin: "@simulation.DrugAdmin" },
+                { name: "@simulation.InducerName", dose: "@simulation.InducerDose", admin: "@simulation.InducerAdmin" });
+        </script>
+
+        <div class="w-25 section-header">
+            <h2>Run the Simulation for @Model.SelectedDrug.Name</h2>
+            <small class="text-muted">
+                Base on your selection we suggest use mouse or rat to create animal models. Below are group definitions found in our database.
+            </small>
+        </div>
+
+        <div class="position-relative" style="zoom:0.825">
+            <svg id="scene1" width="1500" height="800" viewBox="0 0 1500 800" data-groups="@simulation.GroupNames.ToJsonArray()">
+                <defs>
+                    <image id="rat" xlink:href="@Url.Content("~/images/rat.svg")" width="100" height="100" />
+                    <image id="cage" xlink:href="@Url.Content("~/images/cage.svg")" width="200" height="200" />
+                    <image id="scale" xlink:href="@Url.Content("~/images/scale.svg")" width="100" height="100" />
+                </defs>
+                <g class="encaging">
+                    <g class="scale"></g>
+                    <g class="cages"></g>
+                </g>
+                <g class="talkingCloud">
+                    <path fill="black" opacity="0.7" fill-rule="evenodd" d="M0,0" />
+                    <text fill="white"></text>
+                </g>
+                <g class="subtitles" text-anchor="middle" font-size="60">
+                    <rect width="100%" height="100%" fill="black" opacity="0"></rect>
+                    <text x="50%" y="50%" fill="white" opacity="0"></text>
+                </g>
+            </svg>
+            <svg id="scene2" width="1500" height="800" viewBox="0 0 1500 800">
+                <defs>
+                    <image id="ig-lh" xlink:href="@Url.Content("~/images/IntragastricInfusion-lh.svg")" width="400" height="650" />
+                    <image id="ig-rh" xlink:href="@Url.Content("~/images/IntragastricInfusion-rh.svg")" width="300" height="700" />
+                    <image id="ig-ac" xlink:href="@Url.Content("~/images/IntragastricInfusion-AlimentaryCanal.svg")" width="150" height="250" />
+                </defs>
+                <g class="injection">
+                </g>
+                <g class="subtitles" text-anchor="middle" font-size="60">
+                    <rect width="100%" height="100%" fill="black" opacity="0"></rect>
+                    <text x="50%" y="50%" fill="white" opacity="0"></text>
+                </g>
+            </svg>
+            <svg id="scene3" width="1500" height="800" viewBox="0 0 1500 800">
+                <defs>
+                    <image id="ip-lh" xlink:href="@Url.Content("~/images/IntraperitonealInjection-lh.svg")" width="700" height="400" />
+                    <image id="ip-rh" xlink:href="@Url.Content("~/images/IntraperitonealInjection-rh.svg")" width="550" height="300" />
+                    <clipPath id="needle-mask-ip">
+                        <rect x="0" y="0" width="545" height="300"></rect>
+                    </clipPath>
+                </defs>
+                <g class="injection">
+                </g>
+                <g class="subtitles" text-anchor="middle" font-size="60">
+                    <rect width="100%" height="100%" fill="black" opacity="0"></rect>
+                    <text x="50%" y="50%" fill="white" opacity="0"></text>
+                </g>
+            </svg>
+        </div>
+
+@*        <div class="m-5 row">
+            <div class="position-relative">
+                <svg width="@simulation.Width" height="@simulation.Height" class="position-absolute" style="z-index:-1">
+                    <rect x="0" y="0" width="100%" height="100%" fill="aliceblue" />
+                    @for (int i = 0; i < simulation.OrganNames.Length; i++)
+                    {
+                        var organ = simulation.CanvasOrgans[i];
+                        var name = simulation.OrganNames[i];
+
+                        if (!name.StartsWith("_"))
+                        {
+                            <image id="@(name)Img" xlink:href="@Url.Content($"~/images/{name}.svg")"" x="@(organ[0] - organ[2] / 2)" y="@(organ[1] - organ[3] / 2)" width="@organ[2]" height="@organ[3]" opacity="@opacity" />
+                        }
+                    }
+                </svg>
+                <canvas class="circulation" style="width:@(simulation.Width)px; height:@(simulation.Height)px"></canvas>
+                <div class="position-absolute control-bar text-center" style="width:@(simulation.Width)px;height:76px">
+                    <a href="#" class="text-primary mx-2 large disabled-group fn-clear-drug" title="Reset"><i class="fas fa-undo"></i></a>
+                    <a href="#" class="text-primary mx-2 xlarge fn-pause-simulation" title="Play/pause simulation"><i class="fa fa-pause-circle"></i></a>
+                    <a href="#" class="text-primary mx-2 large disabled-group fn-inject-drug" title="Inject drug"><i class="fa fa-syringe"></i></a>
+                    <a href="#" class="text-primary mx-2 large disabled-group fn-toggle-gizmos" title="Toggle gizmos"><i class="fas fa-asterisk"></i></a>
+                    <a href="#" class="text-primary mx-2 large disabled-group fn-toggle-outlines" title="Toggle outline boxes"><i class="far fa-clone"></i></a>
+                    <a href="#" class="text-primary mx-2 large disabled-group fn-toggle-direction" title="Toggle direction"><i class="fas fa-exchange-alt"></i></a>
+                </div>
+            </div>
+            <div id="logs-output" class="bg-dark text-light small col text-monospace" style="height:@(simulation.Height)px">
+                <section class="text-center text-secondary xlarge">Welcome</section>
+            </div>
+        </div>
+*@
+        <div id="assistant" class="position-fixed" style="bottom: -320px; right: 0; width: 320px; height: 320px; z-index: 100">
+            <svg id="assistant-svg" width="320" height="320" viewBox="0 0 140 140">
+            </svg>
+        </div>
+    }
+    else
+    {
+        <div class="w-25 section-header">
+            <h2>Run the Simulation</h2>
+            <small class="text-muted">
+                Please select your treatment first.
+            </small>
+        </div>
+        <div class="my-5 bg-grids"></div>
+    }
+</div>

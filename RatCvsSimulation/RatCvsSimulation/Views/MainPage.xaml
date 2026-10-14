@@ -1,0 +1,67 @@
+﻿<Page
+    x:Class="RatCvsSimulation.Views.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:RatCvsSimulation.Views"
+    xmlns:core="using:RatCvsSimulation.Core"
+    xmlns:model="using:RatCvsSimulation.Model"
+    xmlns:controls="using:RatCvsSimulation.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:canvas="using:Microsoft.Graphics.Canvas.UI.Xaml"
+    mc:Ignorable="d" Loaded="Page_Loaded" SizeChanged="Page_SizeChanged">
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="50"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition x:Name="LeftMenuColumn" Width="0"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+
+        <ListView x:Name="LeftMenu" SelectionMode="None" BorderThickness="0,0,1,0" BorderBrush="DarkGray"
+                  Grid.RowSpan="2" ItemClick="LeftMenu_ItemClick" IsItemClickEnabled="True">
+            <ListView.ItemTemplate>
+                <DataTemplate x:DataType="model:Drug">
+                    <TextBlock Text="{x:Bind Name}"></TextBlock>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+
+        <controls:CardiogramCanvas x:Name="DisplayChart"
+                              Grid.Column="1" Grid.Row="0"
+                              PointerMoved="DisplayChart_PointerMoved" />
+
+        <Canvas x:Name="VisualizationControl" Visibility="Collapsed" Grid.Column="1" Grid.Row="0">
+            <controls:Floating IsBoundByParent="True">
+                <Border BorderBrush="#ddcccccc" BorderThickness="4">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition Height="auto" />
+                        </Grid.RowDefinitions>
+                        <Image Stretch="UniformToFill" CompositeMode="SourceOver"
+                               Source="ms-appx:///Assets/PREP.png" />
+                        <Border Height="32" Background="#ddcccccc" Grid.Row="1">
+                            <TextBlock Text="Rat CVS Visualization"
+                                       FontSize="16"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center" />
+                        </Border>
+                    </Grid>
+                </Border>
+            </controls:Floating>
+        </Canvas>
+
+        <StackPanel Background="LightGray" Grid.Column="1" Grid.Row="1" Orientation="Horizontal" x:Name="controlBar">
+            <Button x:Name="bStart" Margin="20,0,0,0" Width="100" Click="bStart_Click">Start</Button>
+            <Button x:Name="bStop" Margin="20,0,0,0" Width="100" Click="bStop_Click">Stop</Button>
+            <TextBox x:Name="edCursor" Margin="20,0,0,0" Width="300" Height="30" IsReadOnly="True"></TextBox>
+            <TextBlock Margin="20,0" VerticalAlignment="Center">Preparation:</TextBlock>
+            <RadioButton x:Name="rbNormalRat" IsChecked="True" Width="140">Normal</RadioButton>
+            <RadioButton x:Name="rbPithedRat">Pithed</RadioButton>
+        </StackPanel>
+    </Grid>
+</Page>

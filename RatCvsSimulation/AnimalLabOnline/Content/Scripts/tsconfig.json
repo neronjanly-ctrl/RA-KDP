@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noEmitOnError": true,
+    "removeComments": false,
+    "target": "es5",
+    "strict": true,
+    "lib": [ "dom", "es2018" ]
+  }
+}

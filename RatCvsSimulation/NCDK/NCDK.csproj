@@ -1,0 +1,651 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="IO\CML\Data\cml1_0.dtd" />
+    <None Remove="IO\CML\Data\cml1_0_1.dtd" />
+    <None Remove="IO\CML\Data\cml1_0_1.xsd" />
+    <None Remove="IO\CML\Data\cml23.xsd" />
+    <None Remove="IO\CML\Data\cml25b1.xsd" />
+    <None Remove="IO\CML\Data\cmlAll.xsd" />
+    <None Remove="IO\CML\Data\cmlCore.xsd" />
+    <None Remove="IO\Formats\IChemFormatMatcher" />
+    <None Remove="Layout\chebi-ring-templates.smi" />
+    <None Remove="Layout\custom-templates.smi" />
+    <None Remove="Layout\macro.smi" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="IO\CML\Data\cml1_0.dtd" />
+    <EmbeddedResource Include="IO\CML\Data\cml1_0_1.dtd" />
+    <EmbeddedResource Include="IO\CML\Data\cml1_0_1.xsd" />
+    <EmbeddedResource Include="IO\CML\Data\cml23.xsd" />
+    <EmbeddedResource Include="IO\CML\Data\cml25b1.xsd" />
+    <EmbeddedResource Include="IO\CML\Data\cmlAll.xsd" />
+    <EmbeddedResource Include="IO\CML\Data\cmlCore.xsd" />
+    <EmbeddedResource Include="IO\Formats\IChemFormatMatcher" />
+    <EmbeddedResource Include="Layout\chebi-ring-templates.smi" />
+    <EmbeddedResource Include="Layout\custom-templates.smi" />
+    <EmbeddedResource Include="Layout\macro.smi" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.37" />
+    <PackageReference Include="MathNet.Numerics" Version="4.15.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="vds.common" Version="1.10.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="dotNetRDF">
+      <HintPath>..\dotNetRDF.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="BondOrder.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>BondOrder.cs</LastGenOutput>
+    </None>
+    <None Update="BondStereo.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>BondStereo.cs</LastGenOutput>
+    </None>
+    <None Update="cheminf.tokens">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>cheminf.tt</DependentUpon>
+    </None>
+    <None Update="cheminf.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>cheminf.tokens</LastGenOutput>
+    </None>
+    <None Update="Common\Collections\EmptyCollections.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>EmptyCollections.tt.cs</LastGenOutput>
+    </None>
+    <None Update="Config\Elements.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Elements.cs</LastGenOutput>
+    </None>
+    <None Update="DoubleBondConformation.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>DoubleBondConformation.cs</LastGenOutput>
+    </None>
+    <None Update="Formula\MolecularFormula1.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>MolecularFormula1.cs</LastGenOutput>
+    </None>
+    <None Update="Hash\BasicAtomEncoder.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>BasicAtomEncoder.cs</LastGenOutput>
+    </None>
+    <None Update="Hybridization.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Hybridization.cs</LastGenOutput>
+    </None>
+    <None Update="IHasProperties.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>IHasProperties.cs</LastGenOutput>
+    </None>
+    <None Update="IncludeExamples.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>IncludeExamples.xml</LastGenOutput>
+    </None>
+    <None Update="IncludeExamples.xml">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>IncludeExamples.tt</DependentUpon>
+    </None>
+    <None Update="LibIO\CML\CMLElementBodies.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>CMLElementBodies.cs</LastGenOutput>
+    </None>
+    <None Update="LibIO\CML\CMLElementDefines.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>CMLElementDefines.cs</LastGenOutput>
+    </None>
+    <None Update="LibIO\CML\CMLFormula.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>CMLFormula.cs</LastGenOutput>
+    </None>
+    <None Update="Numerics\ConstantHelper.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ConstantHelper.cs</LastGenOutput>
+    </None>
+    <None Update="Numerics\Register.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Register.cs</LastGenOutput>
+    </None>
+    <None Update="Numerics\Vector.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Vector.cs</LastGenOutput>
+    </None>
+    <None Update="QSAR\Descriptors\Atomic\%24AtomicDescriptor.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>$AtomicDescriptor.tt.cs</LastGenOutput>
+    </None>
+    <None Update="QSAR\Descriptors\Atomic\%24ProtonDescriptor.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>$ProtonDescriptor.tt.cs</LastGenOutput>
+    </None>
+    <None Update="QSAR\Descriptors\Bonds\%24BondDescriptor.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>$BondDescriptor.tt.cs</LastGenOutput>
+    </None>
+    <None Update="QSAR\Descriptors\Moleculars\%24MolecularDescriptor.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>$MolecularDescriptor.tt.cs</LastGenOutput>
+    </None>
+    <None Update="Reactions\Types\%24ExampleCodes.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>$ExampleCodes.cs</LastGenOutput>
+    </None>
+    <None Update="SGroups\SgroupType.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>SgroupType.cs</LastGenOutput>
+    </None>
+    <None Update="Smiles\CxSmilesState1.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>CxSmilesState1.cs</LastGenOutput>
+    </None>
+    <None Update="SMSD\Algorithm.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Algorithm.cs</LastGenOutput>
+    </None>
+    <None Update="Stereo\Projection.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Projection.cs</LastGenOutput>
+    </None>
+    <None Update="TetrahedralStereo.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>TetrahedralStereo.cs</LastGenOutput>
+    </None>
+    <None Update="TT\AdductFormula.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>AdductFormula.cs</LastGenOutput>
+    </None>
+    <None Update="TT\AminoAcid.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>AminoAcid.cs</LastGenOutput>
+    </None>
+    <None Update="TT\Association.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Association.cs</LastGenOutput>
+    </None>
+    <None Update="TT\Atom.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Atom.cs</LastGenOutput>
+    </None>
+    <None Update="TT\AtomContainer.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>AtomContainer.cs</LastGenOutput>
+    </None>
+    <None Update="TT\AtomContainerSet.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>AtomContainerSet.cs</LastGenOutput>
+    </None>
+    <None Update="TT\AtomType.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>AtomType.cs</LastGenOutput>
+    </None>
+    <None Update="TT\BioPolymer.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>BioPolymer.cs</LastGenOutput>
+    </None>
+    <None Update="TT\Bond.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Bond.cs</LastGenOutput>
+    </None>
+    <None Update="TT\ChemFile.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ChemFile.cs</LastGenOutput>
+    </None>
+    <None Update="TT\ChemModel.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ChemModel.cs</LastGenOutput>
+    </None>
+    <None Update="TT\ChemObject.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ChemObject.cs</LastGenOutput>
+    </None>
+    <None Update="TT\ChemObjectBuilder.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ChemObjectBuilder.cs</LastGenOutput>
+    </None>
+    <None Update="TT\ChemSequence.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ChemSequence.cs</LastGenOutput>
+    </None>
+    <None Update="TT\Crystal.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Crystal.cs</LastGenOutput>
+    </None>
+    <None Update="TT\ElectronContainer.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ElectronContainer.cs</LastGenOutput>
+    </None>
+    <None Update="TT\Element.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Element.cs</LastGenOutput>
+    </None>
+    <None Update="TT\EnzymeResidueLocator.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>EnzymeResidueLocator.cs</LastGenOutput>
+    </None>
+    <None Update="TT\FragmentAtom.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>FragmentAtom.cs</LastGenOutput>
+    </None>
+    <None Update="TT\Isotope.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Isotope.cs</LastGenOutput>
+    </None>
+    <None Update="TT\LonePair.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>LonePair.cs</LastGenOutput>
+    </None>
+    <None Update="TT\Mapping.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Mapping.cs</LastGenOutput>
+    </None>
+    <None Update="TT\Monomer.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Monomer.cs</LastGenOutput>
+    </None>
+    <None Update="TT\PDBAtom.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>PDBAtom.cs</LastGenOutput>
+    </None>
+    <None Update="TT\PDBMonomer.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>PDBMonomer.cs</LastGenOutput>
+    </None>
+    <None Update="TT\PDBPolymer.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>PDBPolymer.cs</LastGenOutput>
+    </None>
+    <None Update="TT\PDBStrand.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>PDBStrand.cs</LastGenOutput>
+    </None>
+    <None Update="TT\PDBStructure.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>PDBStructure.cs</LastGenOutput>
+    </None>
+    <None Update="TT\Polymer.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Polymer.cs</LastGenOutput>
+    </None>
+    <None Update="TT\PseudoAtom.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>PseudoAtom.cs</LastGenOutput>
+    </None>
+    <None Update="TT\Reaction.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Reaction.cs</LastGenOutput>
+    </None>
+    <None Update="TT\ReactionScheme.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ReactionScheme.cs</LastGenOutput>
+    </None>
+    <None Update="TT\ReactionSet.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ReactionSet.cs</LastGenOutput>
+    </None>
+    <None Update="TT\Ring.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Ring.cs</LastGenOutput>
+    </None>
+    <None Update="TT\RingSet.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>RingSet.cs</LastGenOutput>
+    </None>
+    <None Update="TT\SingleElectron.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>SingleElectron.cs</LastGenOutput>
+    </None>
+    <None Update="TT\Strand.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Strand.cs</LastGenOutput>
+    </None>
+    <None Update="TT\Substance.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Substance.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="BondOrder.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>BondOrder.tt</DependentUpon>
+    </Compile>
+    <Compile Update="BondStereo.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>BondStereo.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Config\Elements.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Elements.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Config\EmptyCollections.tt.cs">
+      <DependentUpon>EmptyCollections.tt</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Update="DoubleBondConformation.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>DoubleBondConformation.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Formula\MolecularFormula1.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>MolecularFormula1.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Hash\BasicAtomEncoder.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>BasicAtomEncoder.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Hybridization.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Hybridization.tt</DependentUpon>
+    </Compile>
+    <Compile Update="IHasProperties.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>IHasProperties.tt</DependentUpon>
+    </Compile>
+    <Compile Update="LibIO\CML\CMLElementBodies.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CMLElementBodies.tt</DependentUpon>
+    </Compile>
+    <Compile Update="LibIO\CML\CMLElementDefines.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CMLElementDefines.tt</DependentUpon>
+    </Compile>
+    <Compile Update="LibIO\CML\CMLFormula.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CMLFormula.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Numerics\ConstantHelper.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ConstantHelper.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Numerics\Register.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Register.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Numerics\Vector.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Vector.tt</DependentUpon>
+    </Compile>
+    <Compile Update="QSAR\Descriptors\Atomic\%24AtomicDescriptor.tt.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>$AtomicDescriptor.tt</DependentUpon>
+    </Compile>
+    <Compile Update="QSAR\Descriptors\Atomic\%24ProtonDescriptor.tt.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>$ProtonDescriptor.tt</DependentUpon>
+    </Compile>
+    <Compile Update="QSAR\Descriptors\Bonds\%24BondDescriptor.tt.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>$BondDescriptor.tt</DependentUpon>
+    </Compile>
+    <Compile Update="QSAR\Descriptors\Moleculars\%24MolecularDescriptor.tt.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>$MolecularDescriptor.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Reactions\Types\%24ExampleCodes.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>$ExampleCodes.tt</DependentUpon>
+    </Compile>
+    <Compile Update="SGroups\SgroupType.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SgroupType.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Smiles\CxSmilesState1.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CxSmilesState1.tt</DependentUpon>
+    </Compile>
+    <Compile Update="SMSD\Algorithm.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Algorithm.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Stereo\Projection.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Projection.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TetrahedralStereo.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>TetrahedralStereo.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TT\AdductFormula.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>AdductFormula.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TT\AminoAcid.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>AminoAcid.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TT\Association.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Association.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TT\Atom.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Atom.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TT\AtomContainer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>AtomContainer.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TT\AtomContainerSet.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>AtomContainerSet.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TT\AtomType.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>AtomType.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TT\BioPolymer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>BioPolymer.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TT\Bond.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Bond.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TT\ChemFile.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ChemFile.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TT\ChemModel.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ChemModel.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TT\ChemObject.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ChemObject.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TT\ChemObjectBuilder.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ChemObjectBuilder.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TT\ChemSequence.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ChemSequence.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TT\Crystal.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Crystal.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TT\ElectronContainer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ElectronContainer.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TT\Element.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Element.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TT\EnzymeResidueLocator.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>EnzymeResidueLocator.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TT\FragmentAtom.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>FragmentAtom.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TT\Isotope.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Isotope.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TT\LonePair.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>LonePair.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TT\Mapping.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Mapping.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TT\Monomer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Monomer.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TT\PDBAtom.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>PDBAtom.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TT\PDBMonomer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>PDBMonomer.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TT\PDBPolymer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>PDBPolymer.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TT\PDBStrand.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>PDBStrand.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TT\PDBStructure.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>PDBStructure.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TT\Polymer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Polymer.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TT\PseudoAtom.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>PseudoAtom.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TT\Reaction.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Reaction.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TT\ReactionScheme.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ReactionScheme.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TT\ReactionSet.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ReactionSet.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TT\Ring.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Ring.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TT\RingSet.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>RingSet.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TT\SingleElectron.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SingleElectron.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TT\Strand.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Strand.tt</DependentUpon>
+    </Compile>
+    <Compile Update="TT\Substance.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Substance.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+</Project>

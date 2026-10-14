@@ -1,0 +1,188 @@
+﻿@model BenchViewModel
+@inject IConfiguration _config
+@{
+    if (Context.IsAjaxRequest())
+    {
+        Layout = null;
+    }
+
+    var experiments = Model?.Experiments;
+
+    var symbolOnFigure = _config.GetValue<string>("ViewOptions:SymbolOnFigure");
+    var symbolGPValue = _config.GetValue<string>("ViewOptions:SymbolGroupPValue");
+    var symbolIPValue = _config.GetValue<string>("ViewOptions:SymbolIndicatorPValue");
+    int sigDigits = _config.GetValue<int>("ViewOptions:OnFigureSignificantDigits");
+
+    string GetString(double? d, bool onFigure)
+    {
+        if (d == null)
+            return "0";
+        if (!onFigure)
+            return d.Value.ToString();
+        if (d.Value >= Math.Pow(10, sigDigits))
+            return d.Value.ToString("0");
+        return d.Value.ToString($"g{sigDigits}");
+    }
+}
+
+<div id="results-container">
+    @if (experiments != null)
+    {
+        <div class="w-25 section-header">
+            <h2>Experiment Results for @Model.SelectedDrug.Name</h2>
+            <small class="text-muted">
+                Below are the results of the best matched experiment found in our database. Source paper@(experiments.Count > 1 ? "s" : "")
+                @{
+                    for (var i = 0; i < experiments.Count; i++)
+                    {
+                        var exp = experiments[i];
+                        <a href="@exp.Url" target="_blank">@exp.ArticleTitle</a>
+                        <text>was authored by @(exp.Author)@(i == experiments.Count - 1 ? '.' : ',')</text>
+                    }
+                }
+            </small>
+        </div>
+
+        @foreach (var exp in experiments)
+        {
+            var indicators = exp.ExpIndicators.OrderBy(o => o.Index).ToArray();
+            bool anyOnFigure = false, anyGPValue = false, anyIPValue = false;
+            <div class="m-5@(exp.ExpGroups.Count < 5 ? " w-75" : "")">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Unit</th>
+                            @foreach (var group in exp.ExpGroups.OrderBy(o => o.Index))
+                            {
+                                var protocols = group.Protocols.OrderBy(o => o.Treatment).ToArray();
+                                <th class="group-modal-toggler" data-toggle="modal" data-target="#group-modal"
+                                    @for (int i = 0; i < protocols.Length; i++) { @: data-drug@(i)="@protocols[i].DrugJson"
+                                    }>
+                                    @group.NameFull <i class="far fa-question-circle text-primary"></i>
+                                </th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < exp.Results.GetLength(0); i++)
+                        {
+                            var ind = indicators[i];
+                            <tr data-index="@ind.Index">
+                                @{
+                                    bool onFigure = ind.OnFigure;
+                                    anyOnFigure |= onFigure;
+                                    string results = string.Join(",", exp.ExpGroups.Select((o, j) => $"[{GetString(exp.Results[i, j, 0], onFigure)},{GetString(exp.Results[i, j, 1], onFigure)}]"));
+                                }
+                                <th class="chart-modal-toggler" data-toggle="modal" data-target="#chart-modal" data-indicator="@ind.Name" data-unit="@(Html.Raw(ind.Unit))" data-results="[@results]" @(string.IsNullOrEmpty(ind.Description) ? "" : $"title=\"{ind.Description}\"")>
+                                    @ind.NameFull <i class="fa fa-chart-bar text-primary"></i>
+                                </th>
+                                <td title="@Html.Raw(ind.UnitFull)">@Html.Raw(ind.Unit)</td>
+                                @for (int j = 0; j < exp.Results.GetLength(1); j++)
+                                {
+                                    var pvalues = exp.PValues[i, j];
+                                    var hasGPValue = pvalues != null && pvalues.Any(o => o.target > 0);
+                                    var hasIPValue = pvalues != null && pvalues.Any(o => o.target < 0);
+                                    anyGPValue |= hasGPValue;
+                                    anyIPValue |= hasIPValue;
+                                    <td @(Html.Raw(onFigure ? "class=\"text-muted\"" : ""))
+                                        @if (hasGPValue) { @: data-gpvalues="[@string.Join(',', pvalues.Where(o => o.target > 0).Select(o => $"[{o.target},{o.pvalue}]"))]"
+                                        }
+                                        @if (hasIPValue) { @: data-ipvalues="[@string.Join(',', pvalues.Where(o => o.target < 0).Select(o => $"[{-o.target},{o.pvalue}]"))]"
+                                        }>
+                                        @if (exp.Results[i, j, 0] != null)
+                                        {
+                                            string sup = string.Empty;
+                                            if (onFigure || hasGPValue || hasIPValue)
+                                            {
+                                                sup = "<sup>" + (onFigure ? symbolOnFigure : "") + (hasGPValue ? symbolGPValue : "") + (hasIPValue ? symbolIPValue : "") + "</sup>";
+                                            }
+                                            @:@GetString(exp.Results[i, j, 0], onFigure) <small>&plusmn; @GetString(exp.Results[i, j, 1], onFigure)</small>@Html.Raw(sup)
+                                        }
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                @if (anyOnFigure || anyGPValue || anyIPValue)
+                {
+                    <ul class="list-unstyled">
+                        @if (anyOnFigure)
+                        {
+                            <li>
+                                <sup>@Html.Raw(symbolOnFigure)</sup>These result data were originally presented as graphical charts in the publication and are converted into numbers for your convenience.
+                            </li>
+                        }
+                        @if (anyGPValue)
+                        {
+                            <li>
+                                <sup>@Html.Raw(symbolGPValue)</sup>Marked result is significantly different compared with some other group(s) given <i>P</i> less than a specific value. Hover cursor for detailed information.
+                            </li>
+                        }
+                        @if (anyIPValue)
+                        {
+                            <li>
+                                <sup>@Html.Raw(symbolIPValue)</sup>Marked result is significantly different compared with some other indicator(s) given <i>P</i> less than a specific value. Hover cursor for detailed information.
+                            </li>
+                        }
+                    </ul>
+                }
+                @*<h3>Conclusion</h3>
+                <p></p>*@
+            </div>
+        }
+    }
+    else
+    {
+        <div class="w-25 section-header">
+            <h2>Experiment Results</h2>
+            <small class="text-muted">
+                Please select your treatment first.
+            </small>
+        </div>
+        <div class="my-5 bg-grids"></div>
+    }
+</div>
+
+@if (experiments == null || !Context.IsAjaxRequest())
+{
+    <div class="modal fade" tabindex="-1" role="dialog" id="chart-modal" aria-labelledby="chart-modal-title">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="chart-modal-title"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <svg class="chart" width="100%" viewBox="0 0 800 300"></svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" tabindex="-1" role="dialog" id="group-modal" aria-labelledby="group-modal-title">
+        <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="group-modal-title"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <table class="table">
+                        <tbody>
+                            <tr><th>Treatment</th><th>Drug/Name</th><th>Dosage</th><th>Admin Method</th></tr>
+                            <tr><td></td><td></td><td></td><td></td></tr>
+                            <tr><td></td><td></td><td></td><td></td></tr>
+                            <tr><td></td><td></td><td></td><td></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+}

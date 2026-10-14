@@ -1,0 +1,130 @@
+﻿@model BenchViewModel
+@{
+    if (Context.IsAjaxRequest())
+    {
+        Layout = null;
+    }
+
+    var experiments = Model?.Experiments;
+}
+
+<div id="models-container">
+    @if (experiments != null)
+    {
+        <div class="w-25 section-header">
+            <h2>Preview Animal Models for @Model.SelectedDrug.Name</h2>
+            <small class="text-muted">
+                Base on your selection we suggest use mouse or rat to create animal models. Below are group definitions found in our database.
+            </small>
+        </div>
+
+        @*<div class="w-75 m-5 models-content">
+                <h5 class="mb-4">
+                    <span class="mr-2 bg-primary" aria-hidden="true">&nbsp;</span>Baseline
+                </h5>
+                <table class="table">
+                    <tr>
+                        <th>Group</th>
+                        <th>Animal</th>
+                        <th>Model Instances</th>
+                        <th>Model Type</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td>Control: Sham Model</td>
+                        <td>Mouse or rat</td>
+                        <td>At least 5<sup>*</sup></td>
+                        <td>In vivo model</td>
+                        <td>Animals that had faked surgical intervention.</td>
+                    </tr>
+                    <tr>
+                        <td>MI Model</td>
+                        <td>Mouse or rat</td>
+                        <td>At least 5<sup>*</sup></td>
+                        <td>In vivo model</td>
+                        <td>Myocardial Infarction animals. Could be modified surgically or Isoproterenol administrated.</td>
+                    </tr>
+                    <tr>
+                        <td>Therapia on Sham Model</td>
+                        <td>Mouse or rat</td>
+                        <td>At least 5<sup>*</sup></td>
+                        <td>In vivo model</td>
+                        <td>Sham model administrated with selected drug.</td>
+                    </tr>
+                    <tr>
+                        <td>Therapia on MI Model</td>
+                        <td>Mouse or rat</td>
+                        <td>At least 5<sup>*</sup></td>
+                        <td>In vivo model</td>
+                        <td>Myocardial Infarction animals administrated with selected drug.</td>
+                    </tr>
+                </table>
+            </div>*@
+
+        @foreach (var exp in experiments)
+        {
+            var mxProtocols = exp.ExpGroups.Max(o => o.Protocols.Count);
+            <div class="m-5 models-content@(mxProtocols < 3 ? " w-75" : "")">
+                <h5 class="mb-4">
+                    <span class="mr-2 bg-primary" aria-hidden="true">&nbsp;</span>Groups adopted in <a href="@exp.Url" target="_blank">@exp.ArticleTitle</a>
+                </h5>
+                <table class="table">
+                    <tr>
+                        <th rowspan="2">Group</th>
+                        @for (int p = 0; p < mxProtocols; p++)
+                        {
+                            <th class="border-left" colspan="4">Treatment @(p + 1)</th>
+                        }
+                    </tr>
+                    <tr>
+                        @for (int p = 0; p < mxProtocols; p++)
+                        {
+                            <th class="border-left">Type</th>
+                            <th>Drug/Name</th>
+                            <th>Dosage</th>
+                            <th>Admin.</th>
+                        }
+                    </tr>
+                    @foreach (var group in exp.ExpGroups.OrderBy(o => o.Index))
+                    {
+                        var protocols = group.Protocols.OrderBy(o => o.Treatment).ToArray();
+                        <tr>
+                            <td>@group.NameFull</td>
+                            @for (int p = 0; p < mxProtocols; p++)
+                            {
+                                if (p < protocols.Length)
+                                {
+                                    var protocol = protocols[p];
+                                    <td class="border-left" title="@protocol.TreatmentStringFull">@protocol.TreatmentString</td>
+                                    <td>@protocol.DrugNameString</td>
+                                    <td title="@protocol.Dose @protocol.DoseUnitStringFull">@protocol.Dose @protocol.DoseUnitString</td>
+                                    <td title="@protocol.AdminStringFull">@protocol.AdminString</td>
+                                }
+                                else
+                                {
+                                    <td class="border-left" colspan="4"></td>
+                                }
+                            }
+                        </tr>
+                    }
+                </table>
+                <p><b>Protocol Considerations</b></p>
+                <ul class="list-unstyled">
+                    <li>
+                        The number of animals for each group should be greater than or equal to 5 which is a bottom-line experimental requirement to ensure a less than 0.05 P value in term of test statistics provided all 5 results are acquired individually and each reflects the same fact that the experiments are carried out for. Also by convention 10 or more instances are highly recommended while in consideration of success rate in animal experiments, additional animals are generally needed.
+                    </li>
+                </ul>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="w-25 section-header">
+            <h2>Preview Animal Models</h2>
+            <small class="text-muted">
+                Please select your treatment first.
+            </small>
+        </div>
+        <div class="my-5 bg-grids"></div>
+    }
+</div>

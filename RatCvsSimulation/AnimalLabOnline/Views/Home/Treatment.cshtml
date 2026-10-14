@@ -1,0 +1,76 @@
+﻿@model BenchViewModel
+@{
+    if (Context.IsAjaxRequest())
+    {
+        Layout = null;
+    }
+
+    var drugs = Model?.Drugs;
+}
+
+<div id="treatment-container">
+    @if (drugs != null)
+    {
+        <div class="w-25 section-header">
+            <h2>Select or Create a Drug for @Model.SelectedSubject.Name</h2>
+            <small class="text-muted">
+                Our records indicate that the following drugs were experimented with for the selected subject. You can also design your own drug by clicking on the <a class="btn p-0 text-primary" data-toggle="modal" data-target="#meditor-modal"><i class="fa fa-plus-circle"></i></a> icon.
+            </small>
+        </div>
+
+        <div class="m-5 row treatment-selector">
+            @for (int i = 0; i < drugs.Count; i++)
+            {
+                var drug = drugs[i];
+                <div class="card m-2 fn-select-card" data-drugid="@drug.Id">
+                    <div class="card-img">
+                        <img src="data:image/svg+xml;base64,@Convert.ToBase64String(Encoding.UTF8.GetBytes(drug.Depict2D))" />
+                    </div>
+                    <div class="card-footer text-truncate px-2" title="@drug.Name">
+                        <a class="btn btn-outline-secondary mr-1 px-2" title="Fork @drug.Name" data-smiles="@drug.Smiles" data-toggle="modal" data-target="#meditor-modal"><i class="fas fa-code-branch" style="width: 1.2rem"></i></a><span>@drug.Name</span>
+                    </div>
+                </div>
+            }
+            <div class="card m-2 fn-select-card disabled">
+                <div class="card-img text-center pt-4">
+                    <a class="btn text-primary" data-toggle="modal" data-target="#meditor-modal">
+                        <i class="fa fa-plus-circle huge"></i>
+                    </a>
+                </div>
+                <div class="card-footer text-truncate px-2" title="Custom Drug">
+                    <a class="btn btn-outline-secondary mr-1 px-2" title="Edit Custom Drug" data-toggle="modal" data-target="#meditor-modal" disabled><i class="far fa-edit" style="width: 1.2rem"></i></a><span>Custom Drug</span>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="w-25 section-header">
+            <h2>Select or Create a Drug</h2>
+            <small class="text-muted">
+                Please select your subject first.
+            </small>
+        </div>
+        <div class="my-5 bg-grids"></div>
+    }
+</div>
+
+@if (drugs == null || !Context.IsAjaxRequest())
+{
+    <div class="modal fade" tabindex="-1" role="dialog" id="meditor-modal" aria-labelledby="meditor-header" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="application">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 id="meditor-header">Molecular Editor</h5>
+                </div>
+                <div class="modal-body">
+                    <div id="jsme" class="position-relative"><span id="span-loading" class="position-absolute">Loading...</span></div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button class="btn btn-primary fn-save-drug">Use for Treatment</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}

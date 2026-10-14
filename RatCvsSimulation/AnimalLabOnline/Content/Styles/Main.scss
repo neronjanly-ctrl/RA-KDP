@@ -1,0 +1,408 @@
+﻿
+$primary: #51cbce;
+$secondary: #ef8157;
+$back-primary: white;
+$back-secondary: #f4f3ef;
+
+$primary-light: mix(white, $primary, 40);
+
+:root {
+    --primary: #51cbce;
+    --secondary: #ef8157;
+    --back-primary: white;
+    --back-secondary: #f4f3ef;
+}
+
+// BEGIN - rebooting bootstrap
+.text-primary {
+    color: $primary !important;
+}
+
+.text-secondary {
+    color: $secondary !important;
+}
+
+.bg-primary {
+    background-color: $primary !important;
+}
+
+.bg-secondary {
+    background-color: $secondary !important;
+}
+
+.bg-dark {
+    background-color: mix($primary, black, 30%) !important;
+}
+
+.card {
+    box-shadow: 0px 6px 10px -4px rgba(0,0,0,0.15);
+}
+
+.card.hover, .card:hover, .btn.list-group-item.hover, .btn.list-group-item:hover {
+    background-color: mix($back-secondary, white, 80%) !important;
+    transition: background-color .3s cubic-bezier(.34,2,.6,1);
+}
+
+.card.active, .card:active, .btn.list-group-item.active, .btn.list-group-item:active {
+    background-color: $primary-light !important;
+}
+
+.btn:focus, .btn.focus {
+    outline: 0;
+    box-shadow: 0px 0px 0px 0.2rem rgba($primary, 0.25);
+}
+
+.btn-primary {
+    color: #fff;
+    background-color: $primary;
+    border-color: $primary;
+}
+
+.btn-secondary {
+    color: #fff;
+    background-color: $secondary;
+    border-color: $secondary;
+}
+
+.btn-outline-secondary {
+    color: $secondary !important;
+    background-color: unset;
+    border-color: $secondary;
+}
+
+.btn-outline-secondary.hover, .btn-outline-secondary:hover {
+    color: $back-primary !important;
+    background-color: $secondary;
+    border-color: $secondary;
+}
+
+.alert-primary {
+    color: mix($primary, black, 50%);
+    background-color: rgba($primary-light, 0.95);
+    border-color: $primary;
+}
+
+.text-segment7 {
+    font-family: DSEG7-Classic-MINI;
+}
+
+.list-group-item {
+    &.active {
+        color: black;
+        background: $primary-light;
+        border-color: $primary-light;
+    }
+
+    &.disabled, &:disabled {
+        color: lightgray !important;
+    }
+}
+
+#subject-container .btn {
+    line-height: 2;
+}
+
+a.disabled, a.disabled:hover, a.disabled:focus {
+    color: lightgray !important;
+}
+
+.modal-lg {
+    max-width: 1200px;
+}
+
+.modal-md {
+    max-width: 800px;
+}
+
+// END - rebooting bootstrap
+
+body {
+    background-color: $back-primary;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.large {
+    font-size: 160%;
+}
+
+.xlarge {
+    font-size: 320%;
+}
+
+.xxlarge {
+    font-size: 480%;
+}
+
+.huge {
+    font-size: 640%;
+}
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 240px;
+    bottom: 0;
+    background: $back-secondary;
+
+    .navbar-brand {
+        margin-left: 8px;
+    }
+
+    .divider {
+        height: 100px;
+        width: 1px;
+        background-color: lightgray;
+        margin-left: 50px;
+    }
+
+    .nav {
+        display: block;
+        font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    }
+
+    ol {
+        counter-reset: nav-counter;
+        list-style-type: none;
+        padding: 0;
+
+        li {
+            transform: rotate(-7.5deg);
+            font-weight: bolder;
+            font-size: 36px;
+            position: relative;
+
+            &::before {
+                content: counter(nav-counter, decimal-leading-zero);
+                counter-increment: nav-counter;
+                font-size: 12px;
+                position: absolute;
+                left: 8px;
+                bottom: 20px;
+                display: inline-block;
+                font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+                color: darkgray;
+            }
+
+            &:first-of-type::before {
+                content: unset;
+            }
+
+            a {
+                display: block;
+                margin: 0 -16px;
+                padding: 8px 48px;
+                transition: -webkit-text-fill-color 0.3s ease;
+                background: linear-gradient(90deg, mix(white, $primary, 40), mix(white, $primary, 60));
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+
+                &:hover {
+                    -webkit-text-fill-color: rgba(0, 0, 0, 0.2);
+                    text-decoration: none;
+                }
+
+                &.active {
+                    transition: color 0.3s ease;
+                    transition: background 0.3s ease;
+                    background: $back-primary;
+                    color: $secondary;
+                    -webkit-background-clip: unset;
+                    -webkit-text-fill-color: unset;
+
+                    &:hover {
+                        color: mix(black, $secondary, 20);
+                    }
+                }
+
+                &.disabled {
+                    background: unset;
+                    -webkit-background-clip: unset;
+                    -webkit-text-fill-color: unset;
+                }
+            }
+        }
+    }
+}
+
+.logo {
+    transition: fill 0.3s ease-in-out;
+
+    &:hover {
+        fill: mix(black, $primary, 30);
+    }
+
+    fill: $primary;
+
+    .eye {
+        fill: $secondary;
+    }
+}
+
+.body {
+    position: relative;
+    margin-left: 260px;
+
+    & > section {
+        position: relative;
+        overflow-y: hidden;
+
+        &::after {
+            content: attr(id);
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+            font-size: 200px;
+            font-weight: bold;
+            color: $secondary;
+            opacity: 0.05;
+            display: block;
+            position: absolute;
+            right: 0;
+            top: -380px;
+            z-index: -1;
+            text-transform: capitalize;
+            transform: rotate(-90deg);
+            transform-origin: right bottom 0;
+        }
+    }
+}
+
+.section-header {
+    margin-left: 10%;
+    margin-top: 40px;
+    min-width: 280px;
+}
+
+#next-step {
+    position: fixed;
+    bottom: 5%;
+    right: 10%;
+    z-index: 1000;
+
+    i {
+        background-color: #fff;
+        border-radius: 50%;
+        width: 90%;
+        line-height: 0.9;
+        text-indent: -10px;
+    }
+}
+
+.subject-header {
+    min-width: 320px;
+    max-width: 540px;
+}
+
+.treatment-selector {
+    .card {
+        width: 12em;
+        min-width: 12em;
+    }
+
+    .card-img {
+        height: 10em;
+        overflow: hidden;
+    }
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+}
+
+sup {
+    font-size: 100%;
+}
+
+table {
+    table-layout: auto;
+
+    td {
+        position: relative;
+
+        &.active {
+            overflow: visible;
+            position: relative;
+            background-color: $back-secondary;
+
+            &::before {
+                content: '';
+                position: absolute;
+                left: 0;
+                top: 0;
+                right: 5px;
+                bottom: 0;
+                box-shadow: 2px 2px 2px 2px lightgray;
+            }
+
+            &::after {
+                content: attr(data-tag);
+                font-style: italic;
+                position: absolute;
+                bottom: -12px;
+                height: 22px;
+                left: 0;
+                right: 5px;
+                text-align: right;
+                display: table-cell;
+                vertical-align: middle;
+                background-color: $primary-light;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                overflow: hidden;
+                z-index: 100;
+                font-size: 80%;
+                padding: 0 8px;
+                box-shadow: 2px 2px 2px 2px lightgray;
+            }
+        }
+    }
+}
+
+.control-bar {
+    left: 0;
+    bottom: 0;
+}
+
+#span-loading {
+    left: calc(50% - 5em);
+    top: calc(50% - 1em);
+}
+
+.nav li::after, .nav-link::after {
+    content: attr(data-tag);
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 40%;
+    color: #ddd;
+    right: 0.5rem;
+    top: 3rem;
+    position: absolute;
+}
+
+.nav li::after {
+    z-index: -1;
+}
+
+.nav-link::after {
+    z-index: 1;
+}
+
+.chart-modal-toggler, .group-modal-toggler {
+    cursor: pointer;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+.bg-grids {
+    $gridcolor: rgba($primary-light, 0.2);
+    $gridsize: 40px;
+    width: 75%;
+    height: 680px;
+    background-image: repeating-linear-gradient($gridcolor, $gridcolor $gridsize/2, transparent $gridsize/2, transparent $gridsize, $gridcolor $gridsize), repeating-linear-gradient(-90deg, $gridcolor, $gridcolor $gridsize/2, transparent $gridsize/2, transparent $gridsize, $gridcolor $gridsize);
+}
+
+footer {
+    margin-left: 240px;
+}

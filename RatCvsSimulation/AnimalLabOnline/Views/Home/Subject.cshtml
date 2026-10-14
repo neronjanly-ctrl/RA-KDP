@@ -1,0 +1,44 @@
+﻿@model BenchViewModel
+@inject IConfiguration _config
+@{
+    if (Context.IsAjaxRequest())
+    {
+        Layout = null;
+    }
+
+    var subjects = Model?.Subjects;
+}
+
+<div id="subject-container">
+    @if (subjects != null)
+    {
+        <div class="w-25 section-header">
+            <h2>Select a Subject</h2>
+            <small class="text-muted">
+                We currently provide four subjects for you to experiment on. With your selection we will walk you through a typical animal experiment in the following steps.
+            </small>
+        </div>
+        <div class="w-75 m-5 list-group-flush">
+            @foreach (var subject in subjects)
+            {
+                <button type="button" class="btn list-group-item text-left" data-subject-id="@subject.Id" style="white-space: unset">
+                    <img width="160" height="120" src="~/images/@(subject.Name).png" class="rounded float-left mr-4" />
+                    <span>@subject.Name</span>
+                    <p class="small text-muted">
+                        @subject.Desc
+                    </p>
+                </button>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="mt-5 ml-4 w-50 subject-header">
+            <h1>@(_config.GetValue<string>("Manifest:Description"))</h1>
+            <small class="text-muted">
+                You will see subjects when they are ready.
+            </small>
+        </div>
+        <div class="my-5 bg-grids"></div>
+    }
+</div>

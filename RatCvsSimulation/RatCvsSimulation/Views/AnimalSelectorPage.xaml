@@ -1,0 +1,82 @@
+﻿<Page
+    x:Class="RatCvsSimulation.Views.AnimalSelectorPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:RatCvsSimulation.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d" Background="{ThemeResource SystemControlAcrylicWindowMediumHighBrush}">
+
+    <Grid HorizontalAlignment="Center" Width="480" VerticalAlignment="Center" Height="500" Padding="16,12">
+        <Grid.Resources>
+            <Style TargetType="Button" BasedOn="{StaticResource ButtonRevealStyle}">
+                <!--<Setter Property="Background" Value="#80D0E5E2"/>-->
+                <Setter Property="Foreground" Value="Purple"/>
+                <Setter Property="Width" Value="192"/>
+                <Setter Property="Height" Value="192"/>
+                <Setter Property="Margin" Value="16"/>
+            </Style>
+            <Style TargetType="TextBlock">
+                <Setter Property="Foreground" Value="MidnightBlue"/>
+                <Setter Property="FontFamily" Value="Britannic"/>
+            </Style>
+        </Grid.Resources>
+        <Grid.ChildrenTransitions>
+            <TransitionCollection>
+                <AddDeleteThemeTransition/>
+            </TransitionCollection>
+        </Grid.ChildrenTransitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="28"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <TextBlock Grid.ColumnSpan="2" FontSize="20" Margin="16,4,0,0">
+            Virtual Animal Experiment
+        </TextBlock>
+        <Button Grid.Row="1" Grid.Column="0" Click="DogButton_Click">
+            <StackPanel>
+                <TextBlock>
+                    Dog
+                </TextBlock>
+                <Viewbox>
+                    <PathIcon Data="M5.89,71.28C12,71.28,9.62,65.43,7.2,64,4.78,60.09,13,56.16,14.36,55s6.35-3.93,6.05-9.48C20.31,43.15,31.2,48,34.62,48.6s10.59.5,11.8-.81-2.72,20,4.33,21.37S61.24,67.85,59.52,65,54,62.91,56,55.25s.1-8,0-8.37S66.68,35.89,66.88,31s-1.61-13.11,4.74-15.73,4.84-6.05,4.64-7-7.06-.71-7.06-.71-.7-3.33-5.74-3.33L62.45.6l-2,2.12L59.42,0s-9.87,12.5-13,18.35S27,25.81,24.74,25.81s-12.9-.91-9-6.35c2.32-1.72,5.64,3.53,5.95,4.33s9.07,2,4.73-8.06S8.51,4.84,4.27,12.8s2.22,19,2.93,19.56c0,0-8.47,8.27-1.92,17.75C6.78,52.59,1.45,55.55.44,58S-.26,71.28,5.89,71.28Z"/>
+                </Viewbox>
+            </StackPanel>
+        </Button>
+        <Button Grid.Row="1" Grid.Column="1" Click="RatButton_Click">
+            <StackPanel>
+                <TextBlock>
+                    Rat
+                </TextBlock>
+                <Viewbox>
+                    <PathIcon Data="M88.2,14.36c-8.44,12.57-23.79.32-36.38,1.76.18-3.41-1-7.78-6.47-12-16.62-13-35.33,9-35.25,7.34S9.49,7.54,5.91,8c-3.26.42-2.5,4.68-1.7,7s-2.66,6.34-2.66,6.34c-3.95,4.92.89,5.94.89,5.94H40.91c7.34,0,9.28-4,9.28-4,.15-.36.47-1.64.79-2.5,14.4-3.72,29.57,12.2,40.57-4.17C92.94,14.55,89.59,12.3,88.2,14.36Z"/>
+                </Viewbox>
+            </StackPanel>
+        </Button>
+        <Button Grid.Row="2" Grid.Column="0" Click="RabbitButton_Click">
+            <StackPanel>
+                <TextBlock>
+                    Rabbit
+                </TextBlock>
+                <Viewbox>
+                    <PathIcon Data="M63.68,20.48l0,0c-.56-.77-1.14-1.57-1.75-2.45-2.82-4.1-5.43-6.09-8-6.09l-.35,0C52.94,11,51,7.54,49.35,4.53,47.53,1.75,45.82.27,44.12,0H44Q43,0,42.4,1.29c-.18.46-.06,1.19,1.64,5.08-1.25-2.1-2.67-4.16-4.45-4.83a3.38,3.38,0,0,0-1.14-.24,1.32,1.32,0,0,0-1.21.63c-.51.81-.19,2.33,1,4.63,1.18,2.77,2.19,5.16,2.84,6.73a11.38,11.38,0,0,1,1.12,4.61V18c0,.28,0,.58.06.94,0,.15-.15.34-.49.53a1.86,1.86,0,0,1-.8.25.42.42,0,0,1-.17,0c-1.84-.82-3.25-1.47-4.19-1.93l-.13,0a42.57,42.57,0,0,0-9.55-1.21C13.74,16.55,10,25.11,8,29.71l-.15.35,0,.11A81.88,81.88,0,0,0,6.17,42.41c-.4-.39-.85-.85-1.25-1.27-1.47-1.54-2.28-2.35-3-2.35C.65,38.79,0,39.89,0,42.06s2.5,6.41,5.71,8.61a2.06,2.06,0,0,0,2.35,0,2.06,2.06,0,0,1,.56-.27,46,46,0,0,0,3.83,3.26c.39.52.8,1,1.22,1.54a5.05,5.05,0,0,0,1.68,1.55,24.8,24.8,0,0,0,6.76,1.49c1.52.19,3.77.55,5.59.84l.28,0,1.78.29v.1h.14a1.91,1.91,0,0,0,.74-.15,2.91,2.91,0,0,0,2-1.57,2.49,2.49,0,0,0-.2-3,18.78,18.78,0,0,0-1.91-1.5,6.89,6.89,0,0,0-1.4-.73c7.82.86,13.76,1.8,14.66,2.3,1,2.36,3.11,3.76,6.26,4.18a3,3,0,0,0,3-1.7q.78-1.54-1.3-3.44l-2.07-1.54a3.86,3.86,0,0,1-1.42-1.6c-.64-.94-.6-1.31-.59-1.38a.26.26,0,0,1,.12-.14,17.78,17.78,0,0,0,6.06-5.78,14.5,14.5,0,0,0,2.67-7.14c2-.14,4.85-1.71,6.86-3,2.49-1.62,3.75-3.53,3.75-5.66C67.13,25.2,65.61,23.12,63.68,20.48Zm-8.81,1a1.72,1.72,0,1,1,1.72-1.72A1.73,1.73,0,0,1,54.87,21.48Z"/>
+                </Viewbox>
+            </StackPanel>
+        </Button>
+        <Button Grid.Row="2" Grid.Column="1" Click="CatButton_Click">
+            <StackPanel>
+                <TextBlock>
+                    Cat
+                </TextBlock>
+                <Viewbox>
+                    <PathIcon Data="M56,42.65a10.27,10.27,0,0,0-7-3.22l-.2,1c3.71,6.38,8.65,11.1,8.65,19.11A10.88,10.88,0,0,1,55.64,65c-1.34,2.22-2.75,3.32-4.23,3.32H47.89A32.42,32.42,0,0,0,49.8,55.52l.16,0a10.83,10.83,0,0,1-.75-3.92,34.35,34.35,0,0,0-6.75-13q-6.24-7.85-12.57-7.44a103.77,103.77,0,0,0-5.74-9,8.19,8.19,0,0,0,2.22-5.74,24,24,0,0,0-.6-4.42,25,25,0,0,1-.6-4.18,18.9,18.9,0,0,1-.85-6L23.65.3c-1.61.88-3.31,3-5.13,6.34a56.41,56.41,0,0,0-10.46-.4q-.9-2-2.41-6.24C1.3,13.31-3.7,16.52,4,23.38,4.86,39,3.47,37.67,13.29,50.69q2.22,4.13,5.23,17C3.3,77.28,29.11,73.61,33.11,73.41,43.38,72.91,63,82.07,63,59A22.17,22.17,0,0,0,56,42.65ZM6.85,14.79a4.39,4.39,0,0,1-2.21-1c-.94-.67-1.4-1.28-1.4-1.81,0-.34.26-.6.8-.8q4.12.8,5.13,3.62Zm11.67.7H16.11c1.14-1.94,2.52-2.92,4.12-2.92a4.25,4.25,0,0,1,1.51.61C21.47,14.72,20.4,15.49,18.52,15.49Z"/>
+                </Viewbox>
+            </StackPanel>
+        </Button>
+    </Grid>
+</Page>

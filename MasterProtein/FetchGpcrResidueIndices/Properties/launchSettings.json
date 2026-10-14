@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "GenerateExcelSummary": {
+      "commandName": "Project",
+      "commandLineArgs": "\"C:\\Users\\MAC489\\Downloads\\GPCRdb_Proteins_081319_computed\""
+    }
+  }
+}
